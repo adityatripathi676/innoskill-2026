@@ -1,0 +1,773 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+    themes: light --default, bumblebee
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    @apply bg-base-200 text-base-content;
+}
+
+::selection {
+    background-color: #d49d07;
+    color: white;
+}
+
+@keyframes blackHeroShift {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.75;
+    }
+    50% {
+        transform: translate3d(-3%, -2%, 0) scale(1.06);
+        opacity: 0.95;
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.75;
+    }
+}
+
+@keyframes colorFlow {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.55;
+    }
+    50% {
+        transform: translate3d(2%, -2%, 0) scale(1.08);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.55;
+    }
+}
+
+.hero-black-animated {
+    position: absolute;
+    inset: -10%;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 193, 7, 0.2) 0%, rgba(0, 0, 0, 0) 35%),
+        radial-gradient(circle at 80% 40%, rgba(239, 68, 68, 0.2) 0%, rgba(0, 0, 0, 0) 40%),
+        radial-gradient(circle at 50% 80%, rgba(255, 193, 7, 0.12) 0%, rgba(0, 0, 0, 0) 40%),
+        #020202;
+    animation: blackHeroShift 12s ease-in-out infinite;
+}
+
+.color-flow-bg {
+    position: absolute;
+    inset: -8%;
+    background:
+        radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.45), transparent 35%),
+        radial-gradient(circle at 80% 20%, rgba(129, 140, 248, 0.4), transparent 35%),
+        radial-gradient(circle at 20% 80%, rgba(251, 113, 133, 0.35), transparent 35%),
+        radial-gradient(circle at 85% 75%, rgba(251, 191, 36, 0.3), transparent 30%);
+    animation: colorFlow 14s ease-in-out infinite;
+}
+
+.userFormContainer {
+    @apply flex flex-col gap-2 mb-4 bg-white/60 hover:bg-white/80 font-semibold p-4 rounded-xl border border-slate-200 hover:border-orange-300 transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-orange-100;
+}
+
+.userFormInput {
+    @apply p-3 transition-all duration-300 text-slate-800 border border-slate-200 rounded-lg focus:outline-none bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 placeholder:text-slate-400 shadow-sm hover:border-orange-300;
+}
+
+.userFormlabel {
+    @apply mb-2 text-slate-700 font-medium;
+}
+
+/* ========================================
+   ADVANCED FORM STYLES - User Form
+   ======================================== */
+
+.form-field-group {
+    @apply flex flex-col gap-2;
+}
+
+.form-label {
+    @apply flex items-center gap-2 text-sm text-slate-600 font-semibold;
+}
+
+.form-input {
+    @apply w-full px-3 sm:px-4 py-3 sm:py-3.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-800 font-medium
+           transition-all duration-300 ease-out
+           hover:border-orange-300 hover:shadow-sm
+           focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 focus:shadow-lg focus:shadow-orange-100
+           placeholder:text-slate-400 placeholder:font-normal;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown-trigger {
+    @apply w-full px-3 sm:px-4 py-3 sm:py-3.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-800 font-medium
+           flex items-center justify-between gap-2 cursor-pointer
+           transition-all duration-300 ease-out
+           hover:border-orange-300 hover:shadow-sm
+           active:border-orange-400;
+}
+
+.custom-dropdown-menu {
+    @apply absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl shadow-slate-200/50
+           overflow-hidden z-50;
+    transform-origin: top center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.custom-dropdown-menu.dropdown-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.custom-dropdown-menu.dropdown-closed {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+    pointer-events: none;
+}
+
+.custom-dropdown-option {
+    @apply w-full px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between text-left text-slate-700
+           transition-all duration-150
+           hover:bg-gradient-to-r hover:from-orange-50 hover:to-rose-50 hover:text-orange-700
+           active:bg-orange-100;
+}
+
+.custom-dropdown-option.selected {
+    @apply bg-orange-50 text-orange-700;
+}
+
+/* ========================================
+   MODAL ANIMATIONS
+   ======================================== */
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.animate-modal-in {
+    animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ========================================
+   ADVANCED FORM STYLES - Event Form
+   ======================================== */
+
+.vertical-accordion {
+    @apply rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300;
+}
+
+.vertical-accordion-header {
+    @apply w-full px-4 py-4 flex items-center justify-between cursor-pointer transition-all duration-300;
+}
+
+.vertical-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vertical-accordion-content.expanded {
+    max-height: 2000px;
+}
+
+.event-card {
+    @apply flex items-center justify-between gap-4 p-3.5 bg-slate-50/50 rounded-xl border border-transparent
+           transition-all duration-200 ease-out
+           hover:bg-white hover:border-slate-200 hover:shadow-sm;
+}
+
+.event-card.selected {
+    @apply bg-orange-50/50 border-orange-200 shadow-sm;
+}
+
+.event-card.disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+.event-checkbox {
+    @apply flex-shrink-0 w-5 h-5 rounded-md border-2 border-slate-300 bg-white
+           flex items-center justify-center cursor-pointer
+           transition-all duration-200
+           hover:border-orange-400;
+}
+
+.event-checkbox.checked {
+    @apply bg-gradient-to-r from-red-500 to-orange-500 border-orange-500;
+}
+
+/* Team Size Dropdown */
+.team-size-trigger {
+    @apply flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-600
+           cursor-pointer transition-all duration-200
+           hover:border-orange-400 hover:bg-orange-50;
+}
+
+.team-size-menu {
+    @apply absolute top-full right-0 mt-1.5 w-32 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden;
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+    pointer-events: none;
+    transition: all 0.15s ease-out;
+}
+
+.team-size-menu.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.team-size-option {
+    @apply w-full px-3 py-2 flex items-center justify-between text-xs text-slate-600 text-left
+           transition-colors duration-150
+           hover:bg-orange-50 hover:text-orange-700;
+}
+
+.team-size-option.selected {
+    @apply bg-orange-50 text-orange-700 font-semibold;
+}
+
+/* ========================================
+   ADVANCED FORM STYLES - Payment Form
+   ======================================== */
+
+.payment-amount-card {
+    @apply p-4 sm:p-5 bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl sm:rounded-2xl border border-orange-200/50;
+}
+
+.payment-method-card {
+    @apply p-4 sm:p-5 bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300;
+}
+
+.upi-payment-button {
+    @apply w-full py-2.5 sm:py-3 px-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold rounded-lg sm:rounded-xl
+           flex items-center justify-center gap-2
+           shadow-lg shadow-purple-500/25
+           transition-all duration-300
+           hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98];
+}
+
+.upi-payment-button.disabled {
+    @apply opacity-50 cursor-not-allowed hover:scale-100 active:scale-100;
+}
+
+.bank-detail-row {
+    @apply flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-slate-50 rounded-lg sm:rounded-xl;
+}
+
+.copy-button {
+    @apply p-1.5 sm:p-2 rounded-lg hover:bg-white active:bg-slate-100 transition-colors duration-200;
+}
+
+.transaction-id-section {
+    @apply p-4 sm:p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl sm:rounded-2xl border border-orange-200/50;
+}
+
+.transaction-id-input {
+    @apply w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 bg-white border-2 border-orange-200 rounded-lg sm:rounded-xl text-slate-800 font-medium
+           transition-all duration-300
+           focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 focus:shadow-lg focus:shadow-orange-100
+           placeholder:text-slate-400 placeholder:font-normal
+           disabled:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed;
+}
+
+/* Legacy styles kept for compatibility */
+.container-event {
+    @apply flex flex-col gap-6 items-center my-4 bg-gradient-to-br from-orange-50/50 to-rose-50/50 py-6 px-4 rounded-2xl text-slate-800 border border-orange-200/50 shadow-sm;
+}
+
+.verticalHead {
+    @apply text-orange-600 p-2 font-bold text-lg;
+}
+
+.container-event h1 {
+    @apply text-xl font-semibold text-slate-800;
+}
+
+.events {
+    @apply flex flex-col gap-4 w-full;
+}
+
+.event-item {
+    @apply flex flex-col items-center justify-between gap-4 p-4 bg-white/80 rounded-xl border border-slate-200 hover:border-orange-400 hover:shadow-lg hover:shadow-orange-100 transition-all duration-300;
+}
+
+.event-item-label-input {
+    @apply flex flex-row justify-between items-center gap-6 w-full;
+}
+
+.event-item-label-input label {
+    @apply w-2/3 text-slate-700;
+}
+
+.navbutton {
+    @apply btn rounded-xl mx-2 my-3 bg-gradient-to-r from-red-500 to-orange-500 text-white hover:from-red-400 hover:to-orange-400 border-none font-bold btn-md shadow-lg shadow-orange-500/25 disabled:opacity-60;
+}
+
+.event-item div select {
+    @apply p-2 text-slate-800 bg-white rounded-lg border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all;
+}
+
+.checkBox {
+    @apply appearance-none border-2 rounded-lg border-slate-300 checked:bg-gradient-to-r checked:from-red-500 checked:to-orange-500 checked:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 transition-all duration-200 bg-white bg-contain bg-center bg-no-repeat h-6 w-6 align-top cursor-pointer hover:border-orange-400;
+}
+
+/* Light theme form animations */
+.form-step-content {
+    animation: fadeSlideIn 0.4s ease-out;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroImageDrift {
+    0% {
+        transform: scale(1.02) translate3d(0, 0, 0);
+    }
+    50% {
+        transform: scale(1.08) translate3d(-1.5%, -1.5%, 0);
+    }
+    100% {
+        transform: scale(1.02) translate3d(0, 0, 0);
+    }
+}
+
+.hero-image-layer {
+    position: absolute;
+    inset: -6%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: heroImageDrift 18s ease-in-out infinite;
+}
+
+@keyframes orbFloatOne {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+        transform: translate3d(-50px, 20px, 0) scale(1.15);
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes orbFloatTwo {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+        transform: translate3d(60px, -30px, 0) scale(1.2);
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes orbFloatThree {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+        transform: translate3d(30px, 35px, 0) scale(1.12);
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes regFlow {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.55;
+    }
+    50% {
+        transform: translate3d(-2%, 2%, 0) scale(1.06);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.55;
+    }
+}
+
+.registration-flow-bg {
+    position: absolute;
+    inset: -5%;
+    background:
+        radial-gradient(circle at 10% 15%, rgba(99, 102, 241, 0.35), transparent 34%),
+        radial-gradient(circle at 80% 10%, rgba(236, 72, 153, 0.25), transparent 34%),
+        radial-gradient(circle at 75% 85%, rgba(14, 165, 233, 0.25), transparent 35%),
+        radial-gradient(circle at 20% 80%, rgba(251, 191, 36, 0.2), transparent 30%);
+    animation: regFlow 16s ease-in-out infinite;
+}
+
+.hero-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: 0.28;
+    pointer-events: none;
+}
+
+.hero-orb-one {
+    width: 280px;
+    height: 280px;
+    background: rgba(56, 189, 248, 0.65);
+    top: 12%;
+    left: 8%;
+    animation: orbFloatOne 14s ease-in-out infinite;
+}
+
+.hero-orb-two {
+    width: 360px;
+    height: 360px;
+    background: rgba(129, 140, 248, 0.5);
+    bottom: 8%;
+    right: 10%;
+    animation: orbFloatTwo 16s ease-in-out infinite;
+}
+
+.hero-orb-three {
+    width: 220px;
+    height: 220px;
+    background: rgba(251, 113, 133, 0.45);
+    bottom: 24%;
+    left: 42%;
+    animation: orbFloatThree 12s ease-in-out infinite;
+}
+
+@keyframes sponsorMarquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.sponsor-track {
+    width: max-content;
+    display: flex;
+    gap: 1rem;
+    animation: sponsorMarquee 24s linear infinite;
+}
+
+.sponsor-track:hover {
+    animation-play-state: paused;
+}
+
+/* 3D Perspective Container */
+.perspective-container {
+    perspective: 1200px;
+    transform-style: preserve-3d;
+}
+
+/* 3D Card with hover tilt */
+.card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+    will-change: transform;
+}
+
+.card-3d:hover {
+    transform: rotateY(-8deg) rotateX(6deg) translateZ(30px);
+    box-shadow: 25px 25px 60px rgba(0, 0, 0, 0.15), -5px -5px 30px rgba(255, 255, 255, 0.08);
+}
+
+/* Shine overlay effect */
+.card-shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-shine::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.15) 50%,
+        transparent 70%
+    );
+    transform: translateX(-100%) rotate(45deg);
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    pointer-events: none;
+}
+
+.card-shine:hover::before {
+    transform: translateX(100%) rotate(45deg);
+}
+
+/* Glow effect on hover */
+.glow-hover {
+    transition: all 0.4s ease;
+}
+
+.glow-hover:hover {
+    box-shadow: 0 0 40px rgba(251, 191, 36, 0.35), 0 0 80px rgba(99, 102, 241, 0.2);
+}
+
+/* Profile card with image background */
+.profile-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.profile-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.75) 100%);
+    z-index: 1;
+}
+
+.profile-card:hover {
+    transform: scale(1.03) translateY(-8px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+
+.profile-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Floating animation */
+@keyframes float3D {
+    0%, 100% {
+        transform: translateY(0) rotateX(0deg) rotateY(0deg);
+    }
+    25% {
+        transform: translateY(-15px) rotateX(3deg) rotateY(2deg);
+    }
+    50% {
+        transform: translateY(-8px) rotateX(-2deg) rotateY(-3deg);
+    }
+    75% {
+        transform: translateY(-20px) rotateX(2deg) rotateY(1deg);
+    }
+}
+
+.float-3d {
+    animation: float3D 8s ease-in-out infinite;
+}
+
+/* Pulse glow ring */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4), 0 0 0 0 rgba(99, 102, 241, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px 10px rgba(251, 191, 36, 0.2), 0 0 60px 20px rgba(99, 102, 241, 0.15);
+    }
+}
+
+.pulse-glow {
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+
+/* Gradient border effect */
+.gradient-border {
+    position: relative;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    border-radius: 1.5rem;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, #fbbf24, #6366f1, #ec4899, #14b8a6);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+/* Tilt card effect */
+.tilt-card {
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+}
+
+.tilt-card:hover {
+    transform: perspective(1000px) rotateX(8deg) rotateY(-5deg) scale(1.02);
+}
+
+/* Glassmorphism with image */
+.glass-image-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: all 0.4s ease;
+}
+
+.glass-image-card:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-5px);
+}
+
+/* Slide up reveal */
+@keyframes slideUpReveal {
+    from {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-up {
+    animation: slideUpReveal 0.8s ease-out forwards;
+}
+
+/* Scale in effect */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.scale-in {
+    animation: scaleIn 0.6s ease-out forwards;
+}
+
+/* Rotating gradient border */
+@keyframes rotateBorder {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.rotating-border {
+    position: relative;
+    z-index: 1;
+}
+
+.rotating-border::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #fbbf24, #ec4899, #6366f1, #14b8a6, #fbbf24);
+    background-size: 300% 300%;
+    animation: rotateBorder 4s linear infinite;
+}
+
+/* 3D Button with depth */
+.btn-3d {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: all 0.25s ease;
+}
+
+.btn-3d::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    filter: brightness(0.7);
+    transform: translateZ(-15px) translateY(8px);
+    z-index: -1;
+}
+
+.btn-3d:hover {
+    transform: translateY(-4px);
+}
+
+.btn-3d:active {
+    transform: translateY(2px);
+}
+
+/* Parallax depth layers */
+.parallax-slow {
+    transform: translateZ(-100px) scale(1.1);
+}
+
+.parallax-fast {
+    transform: translateZ(50px) scale(0.95);
+}
+
+/* Morphing blob */
+@keyframes morphBlob {
+    0%, 100% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    25% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+    50% {
+        border-radius: 50% 60% 30% 60% / 30% 50% 70% 50%;
+    }
+    75% {
+        border-radius: 60% 40% 60% 30% / 70% 30% 50% 60%;
+    }
+}
+
+.morph-blob {
+    animation: morphBlob 12s ease-in-out infinite;
+}
+
+/* Image reveal stripe */
+.reveal-stripe {
+    position: relative;
+    overflow: hidden;
+}
+
+.reveal-stripe::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.reveal-stripe:hover::after {
+    left: 100%;
+}
