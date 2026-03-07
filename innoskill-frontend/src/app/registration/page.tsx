@@ -12,7 +12,7 @@ import { useMultiForm } from "@/hooks/useMultiForm";
 import { userFormSchema } from "@/schemas/userFormSchema";
 import { FormData } from "@/types";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const initialData: FormData = {
@@ -94,8 +94,41 @@ export default function RegistrationPage() {
     const [prices, setPrices] = useState(0);
     const [fromUni, setFromUni] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const router = useRouter();
+
+    // Fetch closed events and filter them out on mount
+    useEffect(() => {
+        const fetchClosedEvents = async () => {
+            try {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://innoskill-2026.onrender.com";
+                const res = await fetch(`${apiUrl}/closed-events`);
+                if (res.ok) {
+                    const { closedEvents } = await res.json();
+                    if (closedEvents && closedEvents.length > 0) {
+                        const closedSet = new Set(closedEvents.map((e: string) => e.toLowerCase()));
+                        setData(prev => ({
+                            ...prev,
+                            vertical1: prev.vertical1.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                            vertical2: prev.vertical2.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                            vertical3: prev.vertical3.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                            vertical4: prev.vertical4.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                            vertical5: prev.vertical5.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                            vertical6: prev.vertical6.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                            vertical7: prev.vertical7.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                            vertical8: prev.vertical8.filter(e => !closedSet.has(e.eventName.toLowerCase())),
+                        }));
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch closed events:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchClosedEvents();
+    }, []);
 
     const updateFields = (fields: any) => {
         setData((prev) => {
@@ -177,7 +210,8 @@ export default function RegistrationPage() {
             data.transactionID = "FREE";
         }
         try {
-            const res = await fetch(`https://innoskill-2026.onrender.com/send`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://innoskill-2026.onrender.com";
+            const res = await fetch(`${apiUrl}/send`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),

@@ -1,2 +1,4 @@
 secrets.json
 api
+.env
+!.env.example

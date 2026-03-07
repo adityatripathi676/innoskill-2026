@@ -116,6 +116,32 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "form submitted", "data": formData})
 	})
 
+	// GET /closed-events - returns list of closed events from config sheet
+	r.GET("/closed-events", func(c *gin.Context) {
+		ctx := context.Background()
+
+		var srv *sheets.Service
+		var err error
+		if creds := os.Getenv("GOOGLE_CREDENTIALS"); creds != "" {
+			srv, err = sheets.NewService(ctx, option.WithCredentialsJSON([]byte(creds)))
+		} else {
+			srv, err = sheets.NewService(ctx, option.WithCredentialsFile("secrets.json"))
+		}
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			return
+		}
+
+		closedEvents, err := getClosedEvents(srv)
+		if err != nil {
+			fmt.Printf("failed to get closed events: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"closedEvents": closedEvents})
+	})
+
 	// Use PORT env var (required by Railway/Render) or default to 8080
 	port := getEnv("PORT", "8080")
 	r.Run(":" + port)

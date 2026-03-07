@@ -61,13 +61,13 @@ func checkDuplicatePhoneNumber(srv *sheets.Service, phoneNumber string) (bool, e
 }
 
 func appendToSheet(
-	srv *sheets.Service, 
-	verticals []Vertical, 
-	baseRow []interface{}, 
+	srv *sheets.Service,
+	verticals []Vertical,
+	baseRow []interface{},
 	sheetIndex string,
 ) error {
 
-	if(len(verticals) == 0) {
+	if len(verticals) == 0 {
 		return nil
 	}
 
@@ -82,10 +82,10 @@ func appendToSheet(
 
 	if len(rows) > 0 {
 		valRange := &sheets.ValueRange{
-			Values: rows,	
-		}	
+			Values: rows,
+		}
 		_, err := srv.Spreadsheets.Values.Append(
-			spreadsheetID, 
+			spreadsheetID,
 			"vertical"+sheetIndex+"!A2", // Just specify the starting cell
 			valRange,
 		).ValueInputOption("RAW").Do()
@@ -98,4 +98,31 @@ func appendToSheet(
 	}
 
 	return nil
+}
+
+// getClosedEvents fetches the list of closed events from the config sheet
+func getClosedEvents(srv *sheets.Service) ([]string, error) {
+	var closedEvents []string
+
+	readRange := "config!A:A"
+	resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+	if err != nil {
+		// If config sheet doesn't exist, no events are closed
+		return closedEvents, nil
+	}
+
+	for i, row := range resp.Values {
+		// Skip header row
+		if i == 0 {
+			continue
+		}
+		if len(row) > 0 {
+			eventName, ok := row[0].(string)
+			if ok && strings.TrimSpace(eventName) != "" {
+				closedEvents = append(closedEvents, strings.TrimSpace(eventName))
+			}
+		}
+	}
+
+	return closedEvents, nil
 }
