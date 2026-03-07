@@ -177,7 +177,7 @@ export default function RegistrationPage() {
             data.transactionID = "FREE";
         }
         try {
-            const res = await fetch(`http://localhost:8080/send`, {
+            const res = await fetch(`https://innoskill-2026.onrender.com/send`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),

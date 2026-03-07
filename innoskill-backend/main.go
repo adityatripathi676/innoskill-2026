@@ -35,7 +35,7 @@ func main() {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "https://innoskill-2026.vercel.app"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "https://innoskill-2026.vercel.app", "https://innoskill-2026.onrender.com"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
