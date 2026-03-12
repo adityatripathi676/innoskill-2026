@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Home, ClipboardList, Phone, Info, Sparkles, ChevronRight } from "lucide-react";
+import { Home, Phone, Sparkles, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import mrlogo from "@/assets/mrlogo.png";
 
 export default function SiteNav({
-    dark = false
+    dark: _dark = false
 }: {
     dark?: boolean
 }) {
@@ -38,8 +38,6 @@ export default function SiteNav({
 
     const navLinks = [
         { href: "/", label: "Home", icon: Home },
-        { href: "/about", label: "About", icon: Info },
-        { href: "/registration", label: "Register", icon: ClipboardList },
         { href: "/contact", label: "Contact", icon: Phone },
     ];
 

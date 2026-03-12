@@ -4,6 +4,10 @@
     themes: light --default, bumblebee
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: "Poppins", sans-serif;
     @apply bg-base-200 text-base-content;
@@ -91,11 +95,11 @@ body {
 }
 
 .form-input {
-    @apply w-full px-3 sm:px-4 py-3 sm:py-3.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-800 font-medium
-           transition-all duration-300 ease-out
-           hover:border-orange-300 hover:shadow-sm
-           focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 focus:shadow-lg focus:shadow-orange-100
-           placeholder:text-slate-400 placeholder:font-normal;
+        @apply w-full px-3 sm:px-4 py-3 sm:py-3.5 bg-white border-2 border-slate-200 rounded-lg sm:rounded-xl text-slate-800 font-medium
+            transition-all duration-200 ease-out
+            hover:border-slate-300 hover:shadow-sm
+            focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-lg focus:shadow-blue-50
+            placeholder:text-slate-400 placeholder:font-normal;
 }
 
 /* Custom Dropdown Styles */
@@ -247,15 +251,39 @@ body {
 }
 
 .upi-payment-button {
-    @apply w-full py-2.5 sm:py-3 px-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold rounded-lg sm:rounded-xl
-           flex items-center justify-center gap-2
-           shadow-lg shadow-purple-500/25
-           transition-all duration-300
-           hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98];
+        @apply w-full py-2.5 sm:py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg sm:rounded-xl
+            flex items-center justify-center gap-2
+            shadow-lg shadow-blue-500/25
+            transition-all duration-300
+            hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98];
 }
 
 .upi-payment-button.disabled {
     @apply opacity-50 cursor-not-allowed hover:scale-100 active:scale-100;
+}
+
+/* ========================================
+   SECTION BADGE & INFO CARD UTILITIES
+   ======================================== */
+
+.section-badge {
+    @apply flex items-center gap-3 mb-1;
+}
+
+.section-badge-icon {
+    @apply p-2 rounded-xl flex-shrink-0;
+}
+
+.info-card-blue {
+    @apply p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3;
+}
+
+.info-card-amber {
+    @apply p-4 bg-amber-50 rounded-xl border border-amber-100 flex items-start gap-3;
+}
+
+.info-card-red {
+    @apply p-4 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3;
 }
 
 .bank-detail-row {
@@ -770,4 +798,431 @@ body {
 
 .reveal-stripe:hover::after {
     left: 100%;
+}
+
+/* ========================================
+   PAGE TRANSITIONS & SMOOTH ANIMATIONS
+   ======================================== */
+
+/* Page enter animation */
+@keyframes pageIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.page-enter {
+    animation: pageIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.page-fade-enter {
+    animation: pageFadeIn 0.3s ease-out forwards;
+}
+
+/* Scroll reveal animations */
+@keyframes scrollRevealUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scrollRevealLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scrollRevealRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scrollRevealScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.reveal-on-scroll {
+    opacity: 0;
+}
+
+.reveal-on-scroll.revealed {
+    animation: scrollRevealUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.reveal-left {
+    opacity: 0;
+}
+.reveal-left.revealed {
+    animation: scrollRevealLeft 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.reveal-right {
+    opacity: 0;
+}
+.reveal-right.revealed {
+    animation: scrollRevealRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.reveal-scale {
+    opacity: 0;
+}
+.reveal-scale.revealed {
+    animation: scrollRevealScale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Staggered animations for children */
+.stagger-children > * {
+    opacity: 0;
+}
+
+.stagger-children.revealed > *:nth-child(1) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.05s forwards; }
+.stagger-children.revealed > *:nth-child(2) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards; }
+.stagger-children.revealed > *:nth-child(3) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s forwards; }
+.stagger-children.revealed > *:nth-child(4) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards; }
+.stagger-children.revealed > *:nth-child(5) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s forwards; }
+.stagger-children.revealed > *:nth-child(6) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards; }
+.stagger-children.revealed > *:nth-child(7) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s forwards; }
+.stagger-children.revealed > *:nth-child(8) { animation: scrollRevealUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards; }
+
+/* Smooth section transitions */
+section {
+    opacity: 1;
+}
+
+/* Enhanced hover microinteractions */
+.hover-lift {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.15);
+}
+
+.hover-scale {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hover-scale:hover {
+    transform: scale(1.03);
+}
+
+.hover-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 30px rgba(251, 146, 60, 0.3);
+}
+
+/* Smooth accordion/collapse transitions */
+.smooth-collapse {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.smooth-collapse.open {
+    grid-template-rows: 1fr;
+}
+
+.smooth-collapse > * {
+    overflow: hidden;
+}
+
+/* Form step transitions */
+@keyframes formStepIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes formStepOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+}
+
+.form-step-enter {
+    animation: formStepIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.form-step-exit {
+    animation: formStepOut 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Button press effect */
+.btn-press {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-press:active {
+    transform: scale(0.97);
+}
+
+/* Card flip animation */
+@keyframes cardFlipIn {
+    from {
+        opacity: 0;
+        transform: perspective(1000px) rotateY(-15deg);
+    }
+    to {
+        opacity: 1;
+        transform: perspective(1000px) rotateY(0);
+    }
+}
+
+.card-flip-enter {
+    animation: cardFlipIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Smooth tab switching */
+.tab-content {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.tab-content.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Navigation link smooth underline */
+.nav-link-underline {
+    position: relative;
+}
+
+.nav-link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, #ef4444, #f97316);
+    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.nav-link-underline:hover::after,
+.nav-link-underline.active::after {
+    width: 100%;
+}
+
+/* Scroll indicator pulse */
+@keyframes scrollPulse {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(8px);
+        opacity: 1;
+    }
+}
+
+.scroll-indicator {
+    animation: scrollPulse 1.5s ease-in-out infinite;
+}
+
+/* Focus visible rings */
+.focus-ring {
+    transition: box-shadow 0.2s ease;
+}
+
+.focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.4);
+}
+
+/* Image lazy load fade */
+.img-lazy {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.img-lazy.loaded {
+    opacity: 1;
+}
+
+/* Toast/notification slide in */
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.toast-enter {
+    animation: toastSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .reveal-on-scroll,
+    .reveal-left,
+    .reveal-right,
+    .reveal-scale,
+    .stagger-children > * {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Page entrance animation */
+.page-enter {
+    animation: pageIn 0.4s ease-out forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: slideInFromBottom 0.5s ease-out forwards;
+}
+
+.animate-slide-left {
+    animation: slideInFromLeft 0.5s ease-out forwards;
+}
+
+.animate-slide-right {
+    animation: slideInFromRight 0.5s ease-out forwards;
+}
+
+/* Staggered animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* Smooth link transitions */
+a {
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Smooth scroll offset for fixed header */
+html {
+    scroll-padding-top: 100px;
+}
+
+/* Focus visible styles for accessibility */
+:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

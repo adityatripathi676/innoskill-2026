@@ -1,363 +1,566 @@
 "use client";
 
+import BankForm from "@/components/bank-form";
+import DocumentForm from "@/components/document-form";
 import EventForm from "@/components/event-form";
-import FloatingDownload from "@/components/floating-download";
 import FormFooter from "@/components/form-footer";
 import FormHeader from "@/components/form-header";
+import ParentForm from "@/components/parent-form";
 import { PaymentForm } from "@/components/payment-form";
 import ProgressBar from "@/components/progress-bar";
 import SiteNav from "@/components/site-nav";
 import UserForm from "@/components/user-form";
 import { useMultiForm } from "@/hooks/useMultiForm";
-import { userFormSchema } from "@/schemas/userFormSchema";
+import { userFormSchema, parentFormSchema, bankFormSchema } from "@/schemas/userFormSchema";
 import { FormData } from "@/types";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useMemo, Fragment } from "react";
 import toast from "react-hot-toast";
+import { User, Shield, Landmark, FolderOpen, CalendarDays, CreditCard } from "lucide-react";
 
 const initialData: FormData = {
+    // Personal Details
     name: "",
+    email: "",
+    dateOfBirth: "",
     scOrUni: "School",
     institutionName: "",
+    institutionOtherName: "",
     intOrExt: "Internal",
     roll: "",
     phoneNumber: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pinCode: "",
     feeType: "Registration",
     teamName: "",
-    submittedAt: null,
+    isTeamLeader: true,
+    
+    // Parent Details
+    parentType: "Father",
+    parentName: "",
+    parentPhone: "",
+    parentAadhaar: "",
+    
+    // Bank Details
+    accountHolderName: "",
+    accountNumber: "",
+    confirmAccountNumber: "",
+    bankName: "",
+    branchName: "",
+    ifscCode: "",
+    accountType: "Savings",
+    isParentAccount: false,
+    
+    // Document Uploads
+    cancelledCheque: null,
+    cancelledChequePreview: "",
+    passbookPhoto: null,
+    passbookPhotoPreview: "",
+    aadhaarPhoto: null,
+    aadhaarPhotoPreview: "",
+    
+    // Payment Details
     transactionID: "",
+    transactionDate: "",
+    paymentReceipt: null,
+    paymentReceiptPreview: "",
+    totalAmount: 0,
+    
+    // Submission
+    submittedAt: null,
+    
+    // Event Verticals
     vertical1: [
-        { eventName: "Theme Based Model Demo (Srijan)", members: null, price: 0, free: false },
-        { eventName: "Best out of Waste (Nav Shrijan)", members: null, price: 0, free: false },
-        { eventName: "Code Debugging", members: null, price: 0, free: false },
-        { eventName: "LAN Gaming", members: null, price: 0, free: false },
-        { eventName: "BioGenius", members: null, price: 0, free: false },
-        { eventName: "Vista Vibes- Video Blog", members: null, price: 0, free: false },
-        { eventName: "Technical Memes", members: null, price: 0, free: false },
-        { eventName: "Build a Circuit", members: null, price: 0, free: false },
-        { eventName: "Workshop on 3D Printing", members: null, price: 0, free: true },
-        { eventName: "Workshop on Laser Cutting and Design", members: null, price: 0, free: true },
-        { eventName: "Capture the Flag (CTF)", members: null, price: 0, free: false },
-        { eventName: "I4C MHA Activity: Awareness against Cybercrime", members: null, price: 0, free: true },
+        { eventName: "Theme Based Model Demo (Srijan)", members: null, price: 0, free: false, closed: false },
+        { eventName: "Best out of Waste (Nav Srijan)", members: null, price: 0, free: false, closed: false },
+        { eventName: "Code Debugging", members: null, price: 0, free: false, closed: false },
+        { eventName: "LAN Gaming", members: null, price: 0, free: false, closed: false },
+        { eventName: "BioGenius", members: null, price: 0, free: false, closed: false },
+        { eventName: "Vista Vibes- Video Blog", members: null, price: 0, free: false, closed: false },
+        { eventName: "Technical Memes", members: null, price: 0, free: false, closed: false },
+        { eventName: "Build a Circuit", members: null, price: 0, free: false, closed: false },
+        { eventName: "Workshop on Laser Cutting and Design", members: null, price: 0, free: false, closed: false },
+        { eventName: "Workshop on 3D Printing", members: null, price: 0, free: false, closed: false },
+        { eventName: "Capture the Flag (CTF)", members: null, price: 0, free: false, closed: false },
     ],
     vertical2: [
-        { eventName: "Pro Launch Series 3", members: null, price: 0, free: false },
-        { eventName: "Ideattrakt Series 4", members: null, price: 0, free: false },
-        { eventName: "Poster Making Series 4", members: null, price: 0, free: false },
-        { eventName: "Finance Ki Pathshala Series 2", members: null, price: 0, free: false },
+        { eventName: "Pro Launch Series 3", members: null, price: 0, free: false, closed: false },
+        { eventName: "Ideattrackt Series 4", members: null, price: 0, free: false, closed: false },
+        { eventName: "Poster Making Series 4", members: null, price: 0, free: false, closed: false },
+        { eventName: "Finance Ki Pathshala Series 3", members: null, price: 0, free: false, closed: false },
     ],
     vertical3: [
-        { eventName: "Workshop on Body Composition Analysis: Principles & Hands-on Training", members: null, price: 0, free: true },
-        { eventName: "Food Waste to wonder challenge", members: null, price: 0, free: false },
-        { eventName: "Oral Hygiene & Hand Hygiene", members: null, price: 0, free: false },
-        { eventName: "Prototype development from farm to fork challege", members: null, price: 0, free: false },
-        { eventName: "YuvaFit", members: null, price: 0, free: false },
-        { eventName: "Basic Life Support", members: null, price: 0, free: true },
+        { eventName: "Workshop on Body Composition Analysis: Principles & Hands-on Training", members: null, price: 0, free: true, closed: false },
+        { eventName: "Prototype development from farm to fork challege", members: null, price: 0, free: false, closed: false },
+        { eventName: "Food Waste to Wonder Challenge", members: null, price: 0, free: false, closed: false },
+        { eventName: "Oral Hygiene & Hand Hygiene", members: null, price: 0, free: true, closed: false },
+        { eventName: "Basic life Support", members: null, price: 0, free: true, closed: false },
+        { eventName: "YuvaFit", members: null, price: 0, free: false, closed: false },
     ],
     vertical4: [
-        { eventName: "Sustainathon ( Idea Pitching)", members: null, price: 0, free: false },
-        { eventName: "Eco-reel", members: null, price: 0, free: false },
-        { eventName: "My community My Ad", members: null, price: 0, free: false },
-        { eventName: "Designing Eco-Corner ", members: null, price: 0, free: false },
-        { eventName: "Waste Wizards ", members: null, price: 0, free: false },
+        { eventName: "Sustainathon ( Idea Pitching)", members: null, price: 0, free: false, closed: false },
+        { eventName: "Eco-reel", members: null, price: 0, free: false, closed: false },
+        { eventName: "My community My Ad", members: null, price: 0, free: false, closed: false },
+        { eventName: "Ecothon - Model making", members: null, price: 0, free: false, closed: false },
     ],
     vertical5: [
-        { eventName: "Ramen Cook Off Challenge", members: null, price: 0, free: false },
-        { eventName: "Demonstartion on Tropical Mocktails - entry closed", members: null, price: 0, free: true },
+        { eventName: "Flavours of India, Culinary Competition", members: null, price: 0, free: false, closed: false },
+        { eventName: "Demonstration on Tropical Mocktails", members: null, price: 0, free: true, closed: false },
     ],
     vertical6: [
-        { eventName: "LexPrenuer- (the legal-tech start-up challenge)", members: null, price: 0, free: false },
-        { eventName: "Trial-by-Fire- (speed moot)", members: null, price: 0, free: false },
-        { eventName: "Law through Art (Legal awareness through poster and memes)", members: null, price: 0, free: false },
-        { eventName: "Legally Bollywood (Mock trial of movie characters)", members: null, price: 0, free: false },
-        { eventName: "WORKSHOP: Seeing is Deceiving: the power of AI generated content", members: null, price: 0, free: true },
+        { eventName: "Character On Trial", members: null, price: 0, free: false, closed: false },
+        { eventName: "Ink of Freedom (Poetry, Shayari , Story-telling competition", members: null, price: 0, free: false, closed: false },
+        { eventName: "Legal Escape Room", members: null, price: 0, free: false, closed: false },
+        { eventName: "Reel and Appeal", members: null, price: 0, free: false, closed: false },
     ],
     vertical7: [
-        { eventName: "Techno- Vogue 'Technology Fashion Walk'", members: null, price: 0, free: false },
-        { eventName: "Spell Bee Competition 'Who will be the Spell Bee Champion'", members: null, price: 0, free: false },
-        { eventName: "Innovoice 'RJ Hunt'", members: null, price: 0, free: false },
-        { eventName: "SnapFlickShowdown: 'Reel Making Competition'", members: null, price: 0, free: false },
+        { eventName: "Techno- Vogue \"Technology Fashion Walk\"", members: null, price: 0, free: false, closed: false },
+        { eventName: "Green Policy Debate", members: null, price: 0, free: false, closed: false },
+        { eventName: "Terrahack", members: null, price: 0, free: false, closed: false },
+        { eventName: "SnapFlickShowdown: \"Reel Making Competition\"", members: null, price: 0, free: false, closed: false },
     ],
     vertical8: [
-        { eventName: "From Inside out - 'Elevate your style and persona'", members: null, price: 0, free: false },
-        { eventName: "Claymation: Bringing Clay to Life Using a Smartphone", members: null, price: 0, free: false },
-        { eventName: "Tekken 8 Tournament", members: null, price: 0, free: false },
-        { eventName: "Recycled Artistry", members: null, price: 0, free: false },
-        { eventName: "Think & Design - (Product Design Competition)", members: null, price: 0, free: false },
-        { eventName: "AR Storytelling Challenge", members: null, price: 0, free: false },
-        { eventName: "Miniature Marvel: Designing a lifestyle product", members: null, price: 0, free: false },
+        { eventName: "BGMI Tourney", members: null, price: 0, free: false, closed: false },
+        { eventName: "Tekken 8 Tournament", members: null, price: 0, free: false, closed: false },
+        { eventName: "EBRU Marbel Painting", members: null, price: 0, free: false, closed: false },
+        { eventName: "DECO Page", members: null, price: 0, free: false, closed: false },
     ],
 };
+
+// Step labels for the progress indicator
+// Step configuration with icons for the progress indicator
+const STEP_CONFIG = [
+    { label: "Personal", Icon: User },
+    { label: "Guardian", Icon: Shield },
+    { label: "Bank", Icon: Landmark },
+    { label: "Documents", Icon: FolderOpen },
+    { label: "Events", Icon: CalendarDays },
+    { label: "Payment", Icon: CreditCard },
+];
 
 export default function RegistrationPage() {
     const [data, setData] = useState<FormData>(initialData);
     const [prices, setPrices] = useState(0);
-    const [fromUni, setFromUni] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
 
     const router = useRouter();
+    const fromUni = data.scOrUni === "University";
 
-    // Fetch closed events and filter them out on mount
-    useEffect(() => {
-        const fetchClosedEvents = async () => {
-            try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://innoskill-2026.onrender.com";
-                const res = await fetch(`${apiUrl}/closed-events`);
-                if (res.ok) {
-                    const { closedEvents } = await res.json();
-                    if (closedEvents && closedEvents.length > 0) {
-                        const closedSet = new Set(closedEvents.map((e: string) => e.toLowerCase()));
-                        setData(prev => ({
-                            ...prev,
-                            vertical1: prev.vertical1.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                            vertical2: prev.vertical2.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                            vertical3: prev.vertical3.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                            vertical4: prev.vertical4.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                            vertical5: prev.vertical5.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                            vertical6: prev.vertical6.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                            vertical7: prev.vertical7.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                            vertical8: prev.vertical8.filter(e => !closedSet.has(e.eventName.toLowerCase())),
-                        }));
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch closed events:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchClosedEvents();
-    }, []);
+    const calculateAge = (dob: string): number | null => {
+        if (!dob) return null;
+        const birth = new Date(dob);
+        if (Number.isNaN(birth.getTime())) return null;
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age -= 1;
+        }
+        return age;
+    };
 
-    const updateFields = (fields: any) => {
-        setData((prev) => {
-            return { ...prev, ...fields };
+    // Minor is derived from DOB; fallback to School when DOB is not selected yet
+    const age = calculateAge(data.dateOfBirth);
+    const isMinor = age !== null ? age < 18 : data.scOrUni === "School";
+
+    const updateFields = (fields: Partial<FormData>) => {
+        setData((prev) => ({ ...prev, ...fields }));
+    };
+
+    // Build form steps dynamically based on whether user is team leader
+    const formSteps = useMemo(() => {
+        const steps = [
+            <UserForm {...data} updateFields={updateFields} key="user" />,
+            <ParentForm 
+                parentType={data.parentType}
+                parentName={data.parentName}
+                parentPhone={data.parentPhone}
+                parentAadhaar={data.parentAadhaar}
+                updateFields={updateFields}
+                isMinor={isMinor}
+                key="parent"
+            />,
+            <BankForm 
+                accountHolderName={data.accountHolderName}
+                accountNumber={data.accountNumber}
+                confirmAccountNumber={data.confirmAccountNumber}
+                bankName={data.bankName}
+                branchName={data.branchName}
+                ifscCode={data.ifscCode}
+                accountType={data.accountType}
+                isParentAccount={data.isParentAccount}
+                updateFields={updateFields}
+                isMinor={isMinor}
+                parentName={data.parentName}
+                key="bank"
+            />,
+            <DocumentForm 
+                cancelledCheque={data.cancelledCheque}
+                cancelledChequePreview={data.cancelledChequePreview}
+                passbookPhoto={data.passbookPhoto}
+                passbookPhotoPreview={data.passbookPhotoPreview}
+                aadhaarPhoto={data.aadhaarPhoto}
+                aadhaarPhotoPreview={data.aadhaarPhotoPreview}
+                updateFields={updateFields}
+                isMinor={isMinor}
+                key="documents"
+            />,
+            <EventForm {...data} updateFields={updateFields} setPrices={setPrices} fromUni={fromUni} key="events" />,
+            <PaymentForm 
+                transactionID={data.transactionID}
+                transactionDate={data.transactionDate}
+                paymentReceipt={data.paymentReceipt}
+                paymentReceiptPreview={data.paymentReceiptPreview}
+                totalAmount={prices}
+                updateFields={updateFields}
+                prices={prices}
+                fromUni={fromUni}
+                key="payment"
+            />,
+        ];
+        return steps;
+    }, [data, isMinor, prices, fromUni]);
+
+    const { currentStepIndex, step, FirstStep, LastStep, back, next, isTransitioning, direction } = useMultiForm(formSteps);
+    
+    const totalSteps = formSteps.length;
+
+    const showError = (message: string) => {
+        toast.error(message, {
+            position: "top-right",
+            style: { backgroundColor: "#1e2939", color: "white" },
         });
     };
 
-    const { currentStepIndex, step, FirstStep, LastStep, back, next } = useMultiForm([
-        <UserForm {...data} updateFields={updateFields} setFromUni={setFromUni} key={1} />,
-        <EventForm {...data} updateFields={updateFields} setPrices={setPrices} fromUni={fromUni} key={2} />,
-        <PaymentForm {...data} updateFields={updateFields} prices={prices} fromUni={fromUni} key={3} />,
-    ]);
-
-    const handleNext = () => {
+    const validateCurrentStep = (): boolean => {
+        // Step 0: Personal Details
         if (currentStepIndex === 0) {
-            const { name, scOrUni, intOrExt, roll, feeType, teamName, institutionName, phoneNumber } = data;
-
-            if (fromUni && institutionName === "MRIS") {
-                toast.error("University student cannot be from MRIS!", {
-                    position: "top-right",
-                    style: {
-                        backgroundColor: "#1e2939",
-                        color: "white",
-                    },
-                });
-                return;
-            }
-            const validated = userFormSchema.safeParse({
+            const {
                 name,
+                email,
+                dateOfBirth,
                 scOrUni,
                 intOrExt,
                 roll,
                 feeType,
                 teamName,
                 institutionName,
+                institutionOtherName,
                 phoneNumber,
-            });
-            if (!validated.success) {
-                toast.error(validated.error.issues[0].message, {
-                    position: "top-right",
-                    style: {
-                        backgroundColor: "#1e2939",
-                        color: "white",
-                    },
-                });
-                return;
+                addressLine1,
+                addressLine2,
+                city,
+                state,
+                pinCode,
+                isTeamLeader,
+            } = data;
+
+            if (institutionName === "MRIS" && scOrUni !== "School") {
+                showError("MRIS participants must be School category");
+                return false;
             }
-            if (!fromUni && institutionName !== "MRIS") {
-                toast.error("School student can only be from MRIS!", {
-                    position: "top-right",
-                    style: {
-                        backgroundColor: "#1e2939",
-                        color: "white",
-                    },
-                });
-                return;
+
+            if ((institutionName === "MRU" || institutionName === "MRIIRS") && scOrUni !== "University") {
+                showError("MRU/MRIIRS participants must be University category");
+                return false;
+            }
+
+            if (institutionName === "Others" && intOrExt !== "External") {
+                showError("Other institutions are External by default");
+                return false;
+            }
+
+            const validated = userFormSchema.safeParse({
+                name,
+                email,
+                dateOfBirth,
+                scOrUni,
+                intOrExt,
+                roll,
+                feeType,
+                teamName,
+                institutionName,
+                institutionOtherName,
+                phoneNumber,
+                addressLine1,
+                addressLine2,
+                city,
+                state,
+                pinCode,
+                isTeamLeader,
+            });
+            
+            if (!validated.success) {
+                showError(validated.error.issues[0].message);
+                return false;
             }
         }
+
+        // Step 1: Parent/Guardian Details
+        if (currentStepIndex === 1) {
+            const { parentType, parentName, parentPhone, parentAadhaar } = data;
+            
+            const validated = parentFormSchema.safeParse({ parentType, parentName, parentPhone, parentAadhaar });
+            
+            if (!validated.success) {
+                showError(validated.error.issues[0].message);
+                return false;
+            }
+        }
+
+        // Step 2: Bank Details
+        if (currentStepIndex === 2) {
+            const { accountHolderName, accountNumber, confirmAccountNumber, bankName, branchName, ifscCode, accountType, isParentAccount } = data;
+            
+            const validated = bankFormSchema.safeParse({
+                accountHolderName, accountNumber, confirmAccountNumber, bankName, branchName, ifscCode, accountType, isParentAccount
+            });
+            
+            if (!validated.success) {
+                showError(validated.error.issues[0].message);
+                return false;
+            }
+        }
+
+        // Step 3: Document Upload
+        if (currentStepIndex === 3) {
+            const { cancelledChequePreview, passbookPhotoPreview, aadhaarPhotoPreview } = data;
+            
+            if (!cancelledChequePreview) {
+                showError("Please upload a cancelled cheque");
+                return false;
+            }
+            
+            if (!passbookPhotoPreview) {
+                showError("Please upload passbook front page");
+                return false;
+            }
+            
+            // Aadhaar is mandatory for minors
+            if (isMinor && !aadhaarPhotoPreview) {
+                showError("Aadhaar card is required for school students");
+                return false;
+            }
+        }
+
+        // Step 4: Event Selection - at least one event is required before payment
+        if (currentStepIndex === 4) {
+            const hasSelectedEvent = [
+                ...data.vertical1,
+                ...data.vertical2,
+                ...data.vertical3,
+                ...data.vertical4,
+                ...data.vertical5,
+                ...data.vertical6,
+                ...data.vertical7,
+                ...data.vertical8,
+            ].some((event) => event.members !== null);
+
+            if (!hasSelectedEvent) {
+                showError("Please select at least one event to continue");
+                return false;
+            }
+        }
+
+        // Step 5: Payment Details
+        if (currentStepIndex === 5) {
+            if (prices > 0) {
+                if (!data.transactionID) {
+                    showError("Please enter the Transaction ID");
+                    return false;
+                }
+                if (!data.transactionDate) {
+                    showError("Please enter the Transaction Date");
+                    return false;
+                }
+                if (!data.paymentReceiptPreview) {
+                    showError("Please upload payment screenshot/receipt");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+    const handleNext = () => {
+        if (!validateCurrentStep()) return;
         next();
     };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!LastStep) return handleNext();
-        if (currentStepIndex === 2 && prices > 0 && !data.transactionID) {
-            toast.error("Please fill in the transactionID", {
-                position: "top-right",
-                style: {
-                    backgroundColor: "#1e2939",
-                    color: "white",
-                },
-            });
+        
+        if (!LastStep) {
+            handleNext();
             return;
         }
+        
+        if (!validateCurrentStep()) return;
+
         setIsSubmitting(true);
-        data.submittedAt = new Date();
-        // Set placeholder transaction ID for free registrations (backend requires it)
-        if (prices === 0 && !data.transactionID) {
-            data.transactionID = "FREE";
-        }
+        
+        // Format timestamp in IST
+        const submittedAt = new Date().toLocaleString("en-IN", { 
+            timeZone: "Asia/Kolkata",
+            day: "2-digit",
+            month: "2-digit", 
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+        });
+
+        // Prepare submission data (without File objects)
+        const submissionData = {
+            ...data,
+            submittedAt,
+            totalAmount: prices,
+            transactionID: prices === 0 ? "FREE" : data.transactionID,
+            // Remove File objects (just keep previews for reference)
+            cancelledCheque: null,
+            passbookPhoto: null,
+            aadhaarPhoto: null,
+            paymentReceipt: null,
+        };
+
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://innoskill-2026.onrender.com";
             const res = await fetch(`${apiUrl}/send`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                body: JSON.stringify(submissionData),
             });
+            
             const resData = await res.json();
+            
             if (!res.ok) {
-                // Show specific error message from backend (e.g., duplicate transaction ID)
-                toast.error(resData.message || "Submission failed", {
-                    position: "top-right",
-                    style: {
-                        backgroundColor: "#1e2939",
-                        color: "white",
-                    },
-                });
+                showError(resData.message || "Submission failed");
                 return;
             }
-            toast.success("Form submitted", {
+            
+            toast.success("Registration submitted successfully!", {
                 position: "top-right",
-                style: {
-                    backgroundColor: "#1e2939",
-                    color: "white",
-                },
+                style: { backgroundColor: "#1e2939", color: "white" },
             });
+            
             router.push("/recorded");
         } catch (error) {
-            console.log(error);
-            toast.error("An error occurred", {
-                position: "top-right",
-                style: {
-                    backgroundColor: "#1e2939",
-                    color: "white",
-                },
-            });
+            console.error(error);
+            showError("An error occurred. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    // Determine form width based on current step
+    const getFormWidth = () => {
+        if (currentStepIndex === 4) return 'max-w-6xl'; // Events step - full width
+        return 'max-w-4xl'; // Professional wide layout
+    };
+
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50/30 to-rose-50/30 overflow-hidden pt-24">
+        <main className="min-h-screen bg-slate-50 pt-24">
             <SiteNav />
-            <FloatingDownload />
-            <section id="registration-form" className="relative min-h-[calc(100vh-72px)] flex items-center justify-center overflow-hidden py-6 sm:py-12">
-                {/* Background image with overlay */}
-                <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-10 mix-blend-multiply"
-                    style={{ backgroundImage: `url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920&q=80')` }}
-                />
-                
-                {/* Animated gradient orbs */}
-                <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-gradient-to-br from-orange-200/40 to-rose-200/40 rounded-full blur-3xl" style={{ animation: 'morphBlob 15s ease-in-out infinite' }} />
-                <div className="absolute bottom-0 left-0 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-gradient-to-br from-yellow-200/30 to-orange-200/30 rounded-full blur-3xl" style={{ animation: 'morphBlob 18s ease-in-out infinite', animationDelay: '-6s' }} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-gradient-to-br from-red-200/20 to-pink-200/20 rounded-full blur-3xl" style={{ animation: 'morphBlob 12s ease-in-out infinite', animationDelay: '-3s' }} />
-                
-                {/* Floating geometric shapes - hidden on mobile */}
-                <div className="absolute top-20 left-20 w-16 h-16 border-2 border-orange-300/30 rounded-lg rotate-12 hidden sm:block" style={{ animation: 'float-3d 8s ease-in-out infinite' }} />
-                <div className="absolute bottom-32 right-32 w-12 h-12 bg-gradient-to-br from-orange-400/20 to-red-400/20 rounded-full hidden sm:block" style={{ animation: 'float-3d 6s ease-in-out infinite', animationDelay: '-2s' }} />
-                <div className="absolute top-1/3 right-20 w-8 h-8 border-2 border-rose-300/40 rotate-45 hidden sm:block" style={{ animation: 'float-3d 10s ease-in-out infinite', animationDelay: '-4s' }} />
+            <section className="relative min-h-[calc(100vh-72px)] flex items-start justify-center py-8 sm:py-14">
+                {/* Subtle warm gradient background */}
+                <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-orange-50/80 via-orange-50/20 to-transparent pointer-events-none" />
 
-                {/* Grid pattern overlay */}
-                <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                <div className={`relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 ${getFormWidth()}`}>
+                    <ProgressBar currentStepIdx={currentStepIndex} totalSteps={totalSteps} />
 
-                <div className={`relative z-10 mx-auto w-full px-3 sm:px-4 md:px-8 transition-all duration-500 ${currentStepIndex === 1 ? 'max-w-6xl' : 'max-w-2xl'}`}>
-                    <ProgressBar currentStepIdx={currentStepIndex} totalSteps={3} />
-                    
-                    {/* Step indicator pills */}
-                    <div className="flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-                        {[1, 2, 3].map((stepNum) => (
-                            <div key={stepNum} className="flex items-center gap-1.5 sm:gap-2">
-                                <div className={`
-                                    relative w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-500
-                                    ${currentStepIndex + 1 >= stepNum 
-                                        ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg shadow-orange-500/30 scale-105 sm:scale-110' 
-                                        : 'bg-white/80 text-slate-400 border-2 border-slate-200'
-                                    }
-                                `}>
-                                    {currentStepIndex + 1 > stepNum ? (
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    ) : stepNum}
-                                    {currentStepIndex + 1 === stepNum && (
-                                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 to-orange-500 animate-ping opacity-30" />
-                                    )}
-                                </div>
-                                {stepNum < 3 && (
-                                    <div className={`w-8 sm:w-12 h-0.5 sm:h-1 rounded-full transition-all duration-500 ${currentStepIndex + 1 > stepNum ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-slate-200'}`} />
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                    {/* Main Form Card */}
+                    <div className="bg-white rounded-3xl shadow-2xl shadow-slate-300/20 border border-slate-100 overflow-hidden transition-shadow duration-500 hover:shadow-slate-300/35">
+                        {/* Orange–red top accent bar */}
+                        <div className="h-1.5 bg-gradient-to-r from-orange-500 via-red-500 to-orange-400" />
 
-                    {/* Main form card with glass effect */}
-                    <div className="relative group">
-                        {/* Glow effect behind card */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/20 via-red-500/20 to-rose-500/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                        
-                        <div className="relative rounded-2xl sm:rounded-3xl bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl shadow-slate-200/50 p-4 sm:p-6 md:p-10 overflow-hidden">
-                            {/* Decorative corner accents */}
-                            <div className="absolute top-0 left-0 w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-br from-orange-500/10 to-transparent rounded-br-full" />
-                            <div className="absolute bottom-0 right-0 w-20 sm:w-24 h-20 sm:h-24 bg-gradient-to-tl from-red-500/10 to-transparent rounded-tl-full" />
-                            
+                        <div className="p-6 sm:p-8 md:p-10 lg:p-12">
                             <FormHeader />
-                            
-                            <form onSubmit={handleSubmit} className="mt-4 sm:mt-6">
-                                <div className="form-step-content">
+
+                            {/* Icon Step Indicator */}
+                            <div className="flex items-center mt-7 mb-8 sm:mb-10">
+                                {STEP_CONFIG.map(({ label, Icon }, idx) => (
+                                    <Fragment key={idx}>
+                                        <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                                            <div className={`
+                                                w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                                ${currentStepIndex === idx
+                                                    ? 'bg-orange-500 border-orange-500 shadow-lg shadow-orange-200/70 scale-110'
+                                                    : currentStepIndex > idx
+                                                        ? 'bg-blue-500 border-blue-500 shadow-sm shadow-blue-200/50'
+                                                        : 'bg-white border-slate-200'
+                                                }
+                                            `}>
+                                                {currentStepIndex > idx ? (
+                                                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                ) : (
+                                                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${currentStepIndex === idx ? 'text-white' : 'text-slate-300'}`} />
+                                                )}
+                                            </div>
+                                            <span className={`text-[9px] sm:text-[10px] font-bold whitespace-nowrap tracking-wide uppercase transition-colors duration-300 ${
+                                                currentStepIndex === idx ? 'text-orange-500' : currentStepIndex > idx ? 'text-blue-500' : 'text-slate-300'
+                                            }`}>{label}</span>
+                                        </div>
+                                        {idx < STEP_CONFIG.length - 1 && (
+                                            <div className={`flex-1 h-0.5 mx-1.5 sm:mx-2.5 mb-5 rounded-full transition-all duration-500 ${currentStepIndex > idx ? 'bg-blue-400' : 'bg-slate-200'}`} />
+                                        )}
+                                    </Fragment>
+                                ))}
+                            </div>
+
+                            <form onSubmit={handleSubmit}>
+                                <div className={`transition-all duration-300 ease-out ${
+                                    isTransitioning
+                                        ? direction === 'forward' ? 'opacity-0 translate-x-8' : 'opacity-0 -translate-x-8'
+                                        : 'opacity-100 translate-x-0'
+                                }`}>
                                     {step}
                                 </div>
-                                
-                                {/* Navigation buttons */}
-                                <div className="flex items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-100">
-                                    {!FirstStep && (
-                                        <button 
-                                            type="button" 
-                                            className="group px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-manipulation"
-                                            onClick={back}
-                                        >
-                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                            </svg>
-                                            Back
-                                        </button>
-                                    )}
-                                    <button 
-                                        type="button" 
-                                        className="group relative px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed overflow-hidden flex items-center gap-1.5 sm:gap-2 touch-manipulation" 
-                                        onClick={handleSubmit} 
-                                        disabled={isSubmitting}
+
+                                {/* Navigation Buttons */}
+                                <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
+                                    <div>
+                                        {!FirstStep && (
+                                            <button
+                                                type="button"
+                                                onClick={back}
+                                                disabled={isTransitioning}
+                                                className="group flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl border-2 border-blue-200 text-blue-600 font-semibold text-sm sm:text-base bg-white hover:bg-blue-50 hover:border-blue-400 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow-md"
+                                            >
+                                                <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                                Back
+                                            </button>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting || isTransitioning}
+                                        className="group flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-300/40 hover:shadow-orange-400/60 hover:scale-[1.03] active:scale-[0.97] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
-                                        <span className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        <span className="relative">{!LastStep ? "Continue" : isSubmitting ? "Submitting..." : "Submit"}</span>
-                                        {!isSubmitting && (
-                                            <svg className="relative w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span>{!LastStep ? "Continue" : isSubmitting ? "Submitting..." : "Submit Registration"}</span>
+                                        {!isSubmitting ? (
+                                            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                             </svg>
+                                        ) : (
+                                            <span className="loading loading-spinner loading-xs sm:loading-sm" />
                                         )}
-                                        {isSubmitting && <span className="loading loading-spinner loading-xs sm:loading-sm" />}
                                     </button>
                                 </div>
                             </form>
                         </div>
                     </div>
-                    
-                    {/* Help link */}
-                    <p className="text-center mt-4 sm:mt-6 text-slate-500 text-xs sm:text-sm">
-                        Need help? Contact <a href="mailto:innoskills@mriirs.edu.in" className="text-orange-500 hover:text-orange-600 font-medium transition-colors">innoskills@mriirs.edu.in</a>
+
+                    <p className="text-center mt-5 text-slate-400 text-xs sm:text-sm">
+                        Need help? <a href="mailto:innoskills@mriirs.edu.in" className="text-orange-500 hover:text-orange-600 font-medium transition-colors">innoskills@mriirs.edu.in</a>
                     </p>
                 </div>
             </section>

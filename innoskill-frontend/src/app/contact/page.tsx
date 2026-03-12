@@ -1,15 +1,21 @@
+"use client";
+
 import FormFooter from "@/components/form-footer";
 import SiteNav from "@/components/site-nav";
 import { Mail, MapPin, Phone, Clock, Building, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export default function ContactPage() {
+    const heroSection = useScrollReveal();
+    const contentSection = useScrollReveal();
+
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50/30 to-rose-50/30 overflow-hidden pt-24">
             <SiteNav />
 
             {/* Hero Section */}
-            <section className="relative py-20 overflow-hidden">
+            <section ref={heroSection.ref} className="relative py-20 overflow-hidden">
                 {/* Background image with overlay */}
                 <div 
                     className="absolute inset-0 bg-cover bg-center opacity-10 mix-blend-multiply"
@@ -18,7 +24,7 @@ export default function ContactPage() {
                 <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-gradient-to-r from-orange-200/40 to-rose-200/40 rounded-full blur-3xl" />
                 <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-gradient-to-r from-red-200/30 to-orange-200/30 rounded-full blur-3xl" />
                 
-                <div className="relative z-10 mx-auto max-w-7xl px-6 text-center">
+                <div className={`relative z-10 mx-auto max-w-7xl px-6 text-center transition-all duration-700 ${heroSection.isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <span className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-5 py-2 text-sm font-semibold text-orange-600 mb-6">
                         Get in Touch
                     </span>
@@ -32,13 +38,13 @@ export default function ContactPage() {
             </section>
 
             {/* Content Section */}
-            <section className="relative py-16">
-                <div className="mx-auto max-w-7xl px-6">
+            <section ref={contentSection.ref} className="relative py-16">
+                <div className={`mx-auto max-w-7xl px-6 transition-all duration-700 ${contentSection.isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <div className="grid gap-8 lg:grid-cols-2">
                         {/* Contact Cards */}
                         <div className="space-y-6">
                             {/* Main Contact Card */}
-                            <div className="rounded-3xl border border-slate-200 bg-white/80 p-8 backdrop-blur-xl shadow-xl shadow-slate-100">
+                            <div className="rounded-3xl border border-slate-200 bg-white/80 p-8 backdrop-blur-xl shadow-xl shadow-slate-100 hover-lift">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
                                         <Building className="text-white" size={24} />
@@ -50,9 +56,9 @@ export default function ContactPage() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-colors group">
-                                        <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500 transition-colors">
-                                            <MapPin className="text-indigo-500 group-hover:text-white transition-colors" size={20} />
+                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 group">
+                                        <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500 transition-colors duration-300">
+                                            <MapPin className="text-indigo-500 group-hover:text-white transition-colors duration-300" size={20} />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-slate-800">Address</h3>
@@ -60,9 +66,9 @@ export default function ContactPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-colors group">
-                                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500 transition-colors">
-                                            <Mail className="text-emerald-500 group-hover:text-white transition-colors" size={20} />
+                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 group">
+                                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500 transition-colors duration-300">
+                                            <Mail className="text-emerald-500 group-hover:text-white transition-colors duration-300" size={20} />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-slate-800">Email</h3>
@@ -72,9 +78,9 @@ export default function ContactPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-colors group">
-                                        <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-500 transition-colors">
-                                            <Phone className="text-rose-500 group-hover:text-white transition-colors" size={20} />
+                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 group">
+                                        <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-500 transition-colors duration-300">
+                                            <Phone className="text-rose-500 group-hover:text-white transition-colors duration-300" size={20} />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-slate-800">Helpdesk</h3>
@@ -82,9 +88,9 @@ export default function ContactPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-colors group">
-                                        <div className="w-10 h-10 rounded-lg bg-cyan-100 flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-500 transition-colors">
-                                            <Clock className="text-cyan-500 group-hover:text-white transition-colors" size={20} />
+                                    <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 group">
+                                        <div className="w-10 h-10 rounded-lg bg-cyan-100 flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-500 transition-colors duration-300">
+                                            <Clock className="text-cyan-500 group-hover:text-white transition-colors duration-300" size={20} />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-slate-800">Event Dates</h3>
@@ -96,7 +102,7 @@ export default function ContactPage() {
 
                             {/* Quick Actions */}
                             <div className="grid grid-cols-2 gap-4">
-                                <Link href="/registration" className="group rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 p-6 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] transition-all">
+                                <Link href="/registration" className="group rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 p-6 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] transition-all duration-300 btn-press">
                                     <h3 className="text-lg font-bold text-white">Register Now</h3>
                                     <p className="text-orange-100 text-sm mt-1">Join INNOSKILLS 2026</p>
                                 </Link>

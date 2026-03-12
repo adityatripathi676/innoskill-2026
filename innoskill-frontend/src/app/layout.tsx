@@ -16,10 +16,40 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" data-theme="bumblebee">
-      <body className={poppins.className}>
-        <Toaster />
-        {children}
+    <html lang="en" data-theme="bumblebee" className="scroll-smooth" suppressHydrationWarning>
+      <head>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @view-transition {
+              navigation: auto;
+            }
+            ::view-transition-old(root),
+            ::view-transition-new(root) {
+              animation-duration: 0.25s;
+              animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+          `
+        }} />
+      </head>
+      <body className={`${poppins.className} antialiased`}>
+        <Toaster 
+          position="top-center"
+          toastOptions={{
+            duration: 4000,
+            className: 'toast-enter',
+            style: {
+              background: '#fff',
+              color: '#1e293b',
+              padding: '16px',
+              borderRadius: '12px',
+              boxShadow: '0 10px 40px -10px rgba(0,0,0,0.15)',
+              border: '1px solid rgba(0,0,0,0.05)',
+            },
+          }}
+        />
+        <main className="page-enter">
+          {children}
+        </main>
       </body>
     </html>
   )

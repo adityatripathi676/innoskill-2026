@@ -9,6 +9,7 @@ import {
 type EventFormProps = VerticalData & {
     updateFields: any,
     fromUni: boolean,
+    institutionName: string,
     setPrices: React.Dispatch<React.SetStateAction<number>>
 }
 
@@ -29,14 +30,14 @@ function getOriginalVerticalKey(shortKey: VerticalKey) {
 }
 
 const verticalInfo: Record<VerticalKey, { title: string; subtitle: string; icon: React.ElementType; gradient: string; bgGradient: string; description: string }> = {
-    v1: { title: "SRIJAN", subtitle: "Technical & Engineering", icon: Zap, gradient: "from-red-500 to-orange-500", bgGradient: "from-red-50 to-orange-50", description: "Showcase your technical prowess through model demos, coding challenges, circuit building, and cybersecurity competitions." },
-    v2: { title: "UDYAM", subtitle: "Business & Management", icon: Sparkles, gradient: "from-orange-500 to-yellow-500", bgGradient: "from-orange-50 to-yellow-50", description: "Launch your entrepreneurial journey with startup pitches, business ideation, and financial literacy challenges." },
-    v3: { title: "AROGYA", subtitle: "Healthcare & Allied Sciences", icon: Heart, gradient: "from-emerald-500 to-teal-500", bgGradient: "from-emerald-50 to-teal-50", description: "Explore health sciences through nutrition challenges, fitness competitions, and life support training." },
-    v4: { title: "PRITHVI", subtitle: "Sustainability & Environment", icon: Leaf, gradient: "from-green-500 to-lime-500", bgGradient: "from-green-50 to-lime-50", description: "Champion sustainability with eco-innovation projects, awareness campaigns, and waste management solutions." },
-    v5: { title: "AATITHYA", subtitle: "Hospitality & Culinary", icon: ChefHat, gradient: "from-amber-500 to-orange-500", bgGradient: "from-amber-50 to-orange-50", description: "Showcase culinary creativity with cook-off challenges and mixology demonstrations." },
-    v6: { title: "NYAYA", subtitle: "Law & Legal Tech", icon: Scale, gradient: "from-indigo-500 to-purple-500", bgGradient: "from-indigo-50 to-purple-50", description: "Navigate the legal landscape through mock trials, legal-tech startups, and awareness campaigns." },
-    v7: { title: "SANCHAR", subtitle: "Media & Communication", icon: Mic, gradient: "from-pink-500 to-rose-500", bgGradient: "from-pink-50 to-rose-50", description: "Express yourself through RJ hunts, reel making, fashion tech, and literary competitions." },
-    v8: { title: "KALA", subtitle: "Design & Creative Arts", icon: Palette, gradient: "from-violet-500 to-fuchsia-500", bgGradient: "from-violet-50 to-fuchsia-50", description: "Unleash creativity with product design, AR storytelling, claymation, and gaming tournaments." }
+    v1: { title: "Innoskill Engineering Drift and Design", subtitle: "Vertical 1", icon: Zap, gradient: "from-red-500 to-orange-500", bgGradient: "from-red-50 to-orange-50", description: "Engineering competitions, workshops, and technical challenges." },
+    v2: { title: "Innoskill Business and Management Conundrum", subtitle: "Vertical 2", icon: Sparkles, gradient: "from-orange-500 to-yellow-500", bgGradient: "from-orange-50 to-yellow-50", description: "Business and management focused competitions." },
+    v3: { title: "Innoskill Healthcare Mystery", subtitle: "Vertical 3", icon: Heart, gradient: "from-emerald-500 to-teal-500", bgGradient: "from-emerald-50 to-teal-50", description: "Healthcare and wellness events with practical workshops." },
+    v4: { title: "Innoskill Sustainathon", subtitle: "Vertical 4", icon: Leaf, gradient: "from-green-500 to-lime-500", bgGradient: "from-green-50 to-lime-50", description: "Sustainability, environment, and model-based challenges." },
+    v5: { title: "Innoskill Culinary and Hospitality", subtitle: "Vertical 5", icon: ChefHat, gradient: "from-amber-500 to-orange-500", bgGradient: "from-amber-50 to-orange-50", description: "Culinary and hospitality competitions." },
+    v6: { title: "Innoskill Law Knot", subtitle: "Vertical 6", icon: Scale, gradient: "from-indigo-500 to-purple-500", bgGradient: "from-indigo-50 to-purple-50", description: "Law-based challenges and creative legal events." },
+    v7: { title: "Innoskill Media and Literary Stumper", subtitle: "Vertical 7", icon: Mic, gradient: "from-pink-500 to-rose-500", bgGradient: "from-pink-50 to-rose-50", description: "Media, debate, and literary competitions." },
+    v8: { title: "Innoskill Design Ignite", subtitle: "Vertical 8", icon: Palette, gradient: "from-violet-500 to-fuchsia-500", bgGradient: "from-violet-50 to-fuchsia-50", description: "Design, gaming, and creative arts competitions." }
 };
 
 // Payment Modal Component
@@ -81,7 +82,7 @@ function PaymentModal({ isOpen, onClose, fromUni, totalPrice }: { isOpen: boolea
 }
 
 // Event Details Modal
-function EventDetailsModal({ isOpen, onClose, eventName, verticalKey, isFree, fromUni }: { isOpen: boolean; onClose: () => void; eventName: string; verticalKey: VerticalKey; isFree: boolean; fromUni: boolean; }) {
+function EventDetailsModal({ isOpen, onClose, eventName, verticalKey, isFree, institutionName }: { isOpen: boolean; onClose: () => void; eventName: string; verticalKey: VerticalKey; isFree: boolean; institutionName: string; }) {
     const info = verticalInfo[verticalKey];
     const Icon = info.icon;
     if (!isOpen) return null;
@@ -98,7 +99,7 @@ function EventDetailsModal({ isOpen, onClose, eventName, verticalKey, isFree, fr
                     <div><h4 className="text-sm font-semibold text-slate-700 mb-2">Event Details</h4><p className="text-sm text-slate-600">{info.description}</p></div>
                     <div className="flex items-center gap-4">
                         <div className="flex-1 p-3 bg-slate-50 rounded-xl"><p className="text-xs text-slate-500">Team Size</p><p className="font-bold text-slate-800">1-5 Members</p></div>
-                        <div className="flex-1 p-3 bg-slate-50 rounded-xl"><p className="text-xs text-slate-500">Entry Fee</p><p className={`font-bold ${isFree ? 'text-emerald-600' : 'text-orange-600'}`}>{isFree ? 'Free' : fromUni ? '₹250-500' : '₹100-200'}</p></div>
+                        <div className="flex-1 p-3 bg-slate-50 rounded-xl"><p className="text-xs text-slate-500">Entry Fee</p><p className={`font-bold ${isFree ? 'text-emerald-600' : 'text-orange-600'}`}>{isFree ? 'Free' : eventName.startsWith("Techno- Vogue") ? (institutionName === "MRIS" ? '₹1500' : '₹2500') : (institutionName === "MRIS" ? '₹200-750' : institutionName === "MRU" || institutionName === "MRIIRS" ? '₹300-1200' : '₹400-1500')}</p></div>
                     </div>
                 </div>
             </div>
@@ -141,6 +142,7 @@ export default function EventForm({
     vertical8,
     updateFields,
     fromUni,
+    institutionName,
     setPrices
 }: EventFormProps) {
     const [price, setPrice] = useState(0);
@@ -153,15 +155,32 @@ export default function EventForm({
         v5: vertical5, v6: vertical6, v7: vertical7, v8: vertical8
     });
 
-    const calculatePriceForEvent = (members: string) => {
-        const memberCount = parseInt(members);
-        if (!fromUni) { if (memberCount === 1) return 100; if (memberCount === 2) return 150; return 200; } 
-        else { if (memberCount === 1) return 250; if (memberCount === 2) return 400; return 500; }
+    const getFeeTier = () => {
+        if (institutionName === "MRIS") {
+            return { individual: 200, group3_5: 300, group6_10: 500, group11_15: 750, technoVogue: 1500, label: "MRIS" };
+        }
+        if (institutionName === "MRU" || institutionName === "MRIIRS") {
+            return { individual: 300, group3_5: 500, group6_10: 750, group11_15: 1200, technoVogue: 2500, label: "MRIIRS/MRU" };
+        }
+        return { individual: 400, group3_5: 650, group6_10: 1000, group11_15: 1500, technoVogue: 2500, label: "Other Institutions" };
+    };
+
+    const calculatePriceForEvent = (members: string, eventName: string) => {
+        const fee = getFeeTier();
+
+        if (eventName.startsWith("Techno- Vogue")) {
+            return fee.technoVogue;
+        }
+
+        if (members === "1") return fee.individual;
+        if (members === "3-5") return fee.group3_5;
+        if (members === "6-10") return fee.group6_10;
+        return fee.group11_15;
     };
 
     const calculateTotalPrice = () => {
         let totalPrice = 0;
-        Object.values(verticals).forEach(vertical => { vertical.forEach(event => { if (event.members !== null && !event.free) { totalPrice += calculatePriceForEvent(event.members); } }); });
+        Object.values(verticals).forEach(vertical => { vertical.forEach(event => { if (event.members !== null && !event.free) { totalPrice += event.price; } }); });
         setPrices(totalPrice);
         return totalPrice;
     };
@@ -178,7 +197,7 @@ export default function EventForm({
         const updatedVerticals = { ...verticals };
         const updatedData = [...updatedVerticals[verticalKey]];
         updatedData[index].members = value;
-        updatedData[index].price = updatedData[index].free ? 0 : calculatePriceForEvent(value);
+        updatedData[index].price = updatedData[index].free ? 0 : calculatePriceForEvent(value, updatedData[index].eventName);
         updatedVerticals[verticalKey] = updatedData;
         setVerticals(updatedVerticals);
         updateFields({ [getOriginalVerticalKey(verticalKey)]: updatedData });
@@ -187,7 +206,11 @@ export default function EventForm({
     const handleCheckboxChange = (verticalKey: VerticalKey, index: number) => {
         const updatedVerticals = { ...verticals };
         const updatedData = [...updatedVerticals[verticalKey]];
-        if (updatedData[index].members === null) { updatedData[index].members = "1"; updatedData[index].price = updatedData[index].free ? 0 : calculatePriceForEvent("1"); } 
+        if (updatedData[index].members === null) {
+            const defaultTeamBand = updatedData[index].eventName.startsWith("Techno- Vogue") ? "1" : "1";
+            updatedData[index].members = defaultTeamBand;
+            updatedData[index].price = updatedData[index].free ? 0 : calculatePriceForEvent(defaultTeamBand, updatedData[index].eventName);
+        }
         else { updatedData[index].members = null; updatedData[index].price = 0; }
         updatedVerticals[verticalKey] = updatedData;
         setVerticals(updatedVerticals);
@@ -204,7 +227,8 @@ export default function EventForm({
 
     const selectedEvents = getAllSelectedEvents();
     const currentVerticalInfo = selectedVertical ? verticalInfo[selectedVertical] : null;
-    const currentEvents = selectedVertical ? verticals[selectedVertical] : [];
+    // Filter out closed events from display
+    const currentEvents = selectedVertical ? verticals[selectedVertical].filter(e => !e.closed) : [];
 
     return (
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 w-full">
@@ -227,19 +251,18 @@ export default function EventForm({
                     <div className="mt-3 sm:mt-4 space-y-2">
                         <p className="text-xs sm:text-sm font-semibold text-slate-700 mb-2 sm:mb-3">{currentVerticalInfo?.title} Events ({currentEvents.length})</p>
                         {currentEvents.map((event, index) => {
-                            const isDisabled = selectedVertical === 'v5' && index === 1;
                             const isSelected = event.members !== null;
-                            const hideTeamSize = selectedVertical === 'v7' && index === 0;
+                            const hideTeamSize = selectedVertical === 'v7' && event.eventName.startsWith("Techno- Vogue");
                             return (
-                                <div key={event.eventName} className={`p-3 sm:p-4 rounded-xl border-2 transition-all cursor-pointer touch-manipulation ${isSelected ? 'bg-orange-50 border-orange-300 shadow-sm' : 'bg-white border-slate-200 hover:border-orange-200 active:border-orange-300'} ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={() => !isDisabled && handleCheckboxChange(selectedVertical, index)}>
+                                <div key={event.eventName} className={`p-3 sm:p-4 rounded-xl border-2 transition-all cursor-pointer touch-manipulation ${isSelected ? 'bg-orange-50 border-orange-300 shadow-sm' : 'bg-white border-slate-200 hover:border-orange-200 active:border-orange-300'}`} onClick={() => handleCheckboxChange(selectedVertical, index)}>
                                     <div className="flex items-start gap-2 sm:gap-3">
                                         <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected ? 'bg-gradient-to-r from-red-500 to-orange-500 border-orange-500' : 'border-slate-300 bg-white'}`}>
                                             {isSelected && <Check className="w-3 h-3 text-white" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className={`font-medium text-xs sm:text-sm ${isDisabled ? 'text-red-400' : 'text-slate-800'}`}>{event.eventName}</p>
+                                            <p className="font-medium text-xs sm:text-sm text-slate-800">{event.eventName}</p>
                                             <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2 flex-wrap">
-                                                {event.free ? (<span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">Free</span>) : (<span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-orange-100 text-orange-700 font-medium flex items-center gap-0.5"><IndianRupee className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{fromUni ? '250-500' : '100-200'}</span>)}
+                                                {event.free ? (<span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">Free</span>) : (<span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-orange-100 text-orange-700 font-medium flex items-center gap-0.5"><IndianRupee className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{event.eventName.startsWith("Techno- Vogue") ? (institutionName === "MRIS" ? '1500' : '2500') : (institutionName === "MRIS" ? '200-750' : institutionName === "MRU" || institutionName === "MRIIRS" ? '300-1200' : '400-1500')}</span>)}
                                                 <button type="button" onClick={(e) => { e.stopPropagation(); setEventDetailsModal({ isOpen: true, eventName: event.eventName, verticalKey: selectedVertical, isFree: event.free }); }} className="text-[10px] sm:text-xs text-slate-500 hover:text-orange-500 active:text-orange-600 flex items-center gap-0.5 sm:gap-1 transition-colors touch-manipulation"><Info className="w-3 h-3" /><span className="hidden sm:inline">Details</span></button>
                                             </div>
                                         </div>
@@ -248,11 +271,11 @@ export default function EventForm({
                                         <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-orange-200" onClick={(e) => e.stopPropagation()}>
                                             <p className="text-[10px] sm:text-xs text-slate-500 mb-1.5 sm:mb-2">Team Size</p>
                                             <div className="flex gap-1.5 sm:gap-2">
-                                                {["1", "2", "3", "4", "5"].map(size => (
+                                                {["1", "3-5", "6-10", "11-15"].map(size => (
                                                     <button key={size} type="button" onClick={() => handleTeamSizeChange(selectedVertical, index, size)} className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-xs sm:text-sm font-bold transition-all touch-manipulation ${event.members === size ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-600 hover:border-orange-400 active:border-orange-500'}`}>{size}</button>
                                                 ))}
                                             </div>
-                                            {!event.free && <p className="text-[10px] sm:text-xs text-orange-600 mt-1.5 sm:mt-2 font-medium">Price: ₹{calculatePriceForEvent(event.members)}</p>}
+                                            {!event.free && <p className="text-[10px] sm:text-xs text-orange-600 mt-1.5 sm:mt-2 font-medium">Price: ₹{calculatePriceForEvent(event.members, event.eventName)}</p>}
                                         </div>
                                     )}
                                 </div>
@@ -298,11 +321,13 @@ export default function EventForm({
                         </div>
                         <button type="button" onClick={() => setPaymentModalOpen(true)} disabled={price === 0} className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-orange-500/30 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"><CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />Payment Options</button>
                         <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-white/60 rounded-xl hidden sm:block">
-                            <p className="text-[10px] sm:text-xs font-semibold text-slate-700 mb-1.5 sm:mb-2">Pricing ({fromUni ? 'University' : 'School'})</p>
+                            <p className="text-[10px] sm:text-xs font-semibold text-slate-700 mb-1.5 sm:mb-2">Pricing ({institutionName === "MRIS" ? "MRIS" : institutionName === "MRU" || institutionName === "MRIIRS" ? "MRIIRS/MRU" : "Other Institutions"})</p>
                             <div className="space-y-0.5 sm:space-y-1 text-[10px] sm:text-xs text-slate-600">
-                                <div className="flex justify-between"><span>1 Member</span><span className="font-medium">₹{fromUni ? 250 : 100}</span></div>
-                                <div className="flex justify-between"><span>2 Members</span><span className="font-medium">₹{fromUni ? 400 : 150}</span></div>
-                                <div className="flex justify-between"><span>3-5 Members</span><span className="font-medium">₹{fromUni ? 500 : 200}</span></div>
+                                <div className="flex justify-between"><span>Individual</span><span className="font-medium">₹{institutionName === "MRIS" ? 200 : institutionName === "MRU" || institutionName === "MRIIRS" ? 300 : 400}</span></div>
+                                <div className="flex justify-between"><span>Group (3-5)</span><span className="font-medium">₹{institutionName === "MRIS" ? 300 : institutionName === "MRU" || institutionName === "MRIIRS" ? 500 : 650}</span></div>
+                                <div className="flex justify-between"><span>Group (6-10)</span><span className="font-medium">₹{institutionName === "MRIS" ? 500 : institutionName === "MRU" || institutionName === "MRIIRS" ? 750 : 1000}</span></div>
+                                <div className="flex justify-between"><span>Group (11-15)</span><span className="font-medium">₹{institutionName === "MRIS" ? 750 : institutionName === "MRU" || institutionName === "MRIIRS" ? 1200 : 1500}</span></div>
+                                <div className="flex justify-between"><span>Techno- Vogue</span><span className="font-medium">₹{institutionName === "MRIS" ? 1500 : 2500}</span></div>
                             </div>
                         </div>
                     </div>
@@ -311,7 +336,7 @@ export default function EventForm({
             </div>
 
             <PaymentModal isOpen={paymentModalOpen} onClose={() => setPaymentModalOpen(false)} fromUni={fromUni} totalPrice={price} />
-            {eventDetailsModal && <EventDetailsModal isOpen={eventDetailsModal.isOpen} onClose={() => setEventDetailsModal(null)} eventName={eventDetailsModal.eventName} verticalKey={eventDetailsModal.verticalKey} isFree={eventDetailsModal.isFree} fromUni={fromUni} />}
+            {eventDetailsModal && <EventDetailsModal isOpen={eventDetailsModal.isOpen} onClose={() => setEventDetailsModal(null)} eventName={eventDetailsModal.eventName} verticalKey={eventDetailsModal.verticalKey} isFree={eventDetailsModal.isFree} institutionName={institutionName} />}
         </div>
     );
 }
