@@ -201,7 +201,7 @@ func main() {
 	r.GET("/oauth/callback", func(c *gin.Context) {
 		expectedState, _ := c.Cookie("oauth_state")
 		if expectedState == "" || c.Query("state") == "" || c.Query("state") != expectedState {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state. restart from /oauth/start and finish login in the same browser session", "cookieStatePresent": expectedState != "", "queryStatePresent": c.Query(\"state\") != \"\"})
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state. restart from /oauth/start and finish login in the same browser session", "cookieStatePresent": expectedState != "", "queryStatePresent": c.Query("state") != ""})
 			return
 		}
 
