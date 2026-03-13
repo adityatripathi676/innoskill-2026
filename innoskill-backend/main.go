@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -32,7 +34,6 @@ type FormData struct {
 }
 
 var spreadsheetID = getEnv("SPREADSHEET_ID", "1e4ivJIoPODZZ-zVGAUF0jE_K_4W-suw79c1qxSL0To4")
-var oauthState string
 
 func getEnv(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
@@ -47,8 +48,27 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
+	allowedOrigins := map[string]bool{
+		"http://localhost:3000":               true,
+		"http://localhost:3001":               true,
+		"https://innoskill-2026.vercel.app":   true,
+		"https://innoskill-2026-eight.vercel.app": true,
+		"https://innoskill-2026.onrender.com": true,
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "https://innoskill-2026.vercel.app", "https://innoskill-2026.onrender.com","https://innoskill-2026-eight.vercel.app"},
+		AllowOriginFunc: func(origin string) bool {
+			if allowedOrigins[origin] {
+				return true
+			}
+			if strings.HasPrefix(origin, "https://innoskill-2026-") && strings.HasSuffix(origin, ".onrender.com") {
+				return true
+			}
+			if strings.HasPrefix(origin, "https://innoskill-2026-") && strings.HasSuffix(origin, ".vercel.app") {
+				return true
+			}
+			return false
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -192,14 +212,28 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		oauthState = generateOAuthState()
-		authURL := conf.AuthCodeURL(oauthState, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+		stateSecret, err := oauthStateSecret()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		nonce := generateOAuthState()
+		state := signOAuthState(nonce, stateSecret)
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie("oauth_state", state, 600, "/", "", isHTTPS(c), false)
+		authURL := conf.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 		c.Redirect(http.StatusFound, authURL)
 	})
 
 	r.GET("/oauth/callback", func(c *gin.Context) {
-		if c.Query("state") == "" || c.Query("state") != oauthState {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state"})
+		stateSecret, err := oauthStateSecret()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		queryState := c.Query("state")
+		if queryState == "" || !validateOAuthState(queryState, stateSecret) {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state. restart from /oauth/start on the same backend domain and finish login in the same browser session"})
 			return
 		}
 
@@ -316,7 +350,7 @@ func printServiceAccountEmail() {
 func oauthConfig() (*oauth2.Config, error) {
 	clientID := os.Getenv("GOOGLE_CLIENT_ID")
 	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	redirectURL := getEnv("OAUTH_REDIRECT_URL", "http://localhost:8080/oauth/callback")
+	redirectURL := getEnv("OAUTH_REDIRECT_URL", "https://innoskill-2026.onrender.com/oauth/callback")
 	if clientID == "" || clientSecret == "" {
 		return nil, fmt.Errorf("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set")
 	}
@@ -330,12 +364,54 @@ func oauthConfig() (*oauth2.Config, error) {
 	}, nil
 }
 
+func oauthStateSecret() ([]byte, error) {
+	if secret := os.Getenv("OAUTH_STATE_SECRET"); secret != "" {
+		return []byte(secret), nil
+	}
+	if secret := os.Getenv("GOOGLE_CLIENT_SECRET"); secret != "" {
+		return []byte(secret), nil
+	}
+	return nil, fmt.Errorf("OAUTH_STATE_SECRET or GOOGLE_CLIENT_SECRET must be set")
+}
+
+func isHTTPS(c *gin.Context) bool {
+	if c.Request.TLS != nil {
+		return true
+	}
+	proto := strings.ToLower(strings.TrimSpace(c.GetHeader("X-Forwarded-Proto")))
+	return proto == "https"
+}
+
 func generateOAuthState() string {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return strconv.FormatInt(time.Now().UnixNano(), 10)
 	}
 	return base64.RawURLEncoding.EncodeToString(b)
+}
+
+func signOAuthState(nonce string, secret []byte) string {
+	mac := hmac.New(sha256.New, secret)
+	mac.Write([]byte(nonce))
+	sig := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
+	return nonce + "." + sig
+}
+
+func validateOAuthState(state string, secret []byte) bool {
+	parts := strings.Split(state, ".")
+	if len(parts) != 2 {
+		return false
+	}
+	nonce := parts[0]
+	sig := parts[1]
+	mac := hmac.New(sha256.New, secret)
+	mac.Write([]byte(nonce))
+	expected := mac.Sum(nil)
+	got, err := base64.RawURLEncoding.DecodeString(sig)
+	if err != nil {
+		return false
+	}
+	return hmac.Equal(expected, got)
 }
 
 func resolvedInstitutionName(formData FormData) string {

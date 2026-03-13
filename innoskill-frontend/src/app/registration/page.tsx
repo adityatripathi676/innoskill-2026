@@ -429,17 +429,25 @@ export default function RegistrationPage() {
         };
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://innoskill-2026.onrender.com";
-            const res = await fetch(`${apiUrl}/send`, {
+            const res = await fetch("/api/send", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(submissionData),
             });
-            
-            const resData = await res.json();
-            
+
+            const contentType = res.headers.get("Content-Type") || "";
+            const rawBody = await res.text();
+            let resData: { message?: string } | null = null;
+            if (contentType.includes("application/json")) {
+                try {
+                    resData = JSON.parse(rawBody);
+                } catch {
+                    resData = null;
+                }
+            }
+
             if (!res.ok) {
-                showError(resData.message || "Submission failed");
+                showError(resData?.message || rawBody || "Submission failed");
                 return;
             }
             
