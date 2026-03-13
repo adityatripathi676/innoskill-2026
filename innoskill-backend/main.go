@@ -25,12 +25,12 @@ import (
 )
 
 type FormData struct {
-	UserFormData  `json:",inline"`
+	UserFormData     `json:",inline"`
 	PhotoPreviewData `json:",inline"`
 	DocumentFileData `json:",inline"`
-	SubmittedAt   string `json:"submittedAt"`
-	TransactionID string `json:"transactionID" binding:"required"`
-	VerticalData  `json:",inline"`
+	SubmittedAt      string `json:"submittedAt"`
+	TransactionID    string `json:"transactionID" binding:"required"`
+	VerticalData     `json:",inline"`
 }
 
 var spreadsheetID = getEnv("SPREADSHEET_ID", "1e4ivJIoPODZZ-zVGAUF0jE_K_4W-suw79c1qxSL0To4")
@@ -49,11 +49,11 @@ func main() {
 	r := gin.Default()
 
 	allowedOrigins := map[string]bool{
-		"http://localhost:3000":               true,
-		"http://localhost:3001":               true,
-		"https://innoskill-2026.vercel.app":   true,
+		"http://localhost:3000":                   true,
+		"http://localhost:3001":                   true,
+		"https://innoskill-2026.vercel.app":       true,
 		"https://innoskill-2026-eight.vercel.app": true,
-		"https://innoskill-2026.onrender.com": true,
+		"https://innoskill-2026.onrender.com":     true,
 	}
 
 	r.Use(cors.New(cors.Config{
@@ -77,12 +77,42 @@ func main() {
 	}))
 
 	r.POST("/send", func(c *gin.Context) {
+		// Limit request body to 5MB (images/PDFs only)
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 5<<20) // 5MB
+
 		ctx := context.Background()
 		var formData FormData
 
 		if err := c.ShouldBindJSON(&formData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request", "error": err.Error()})
 			return
+		}
+
+		// Validate file types for uploads (images/PDFs only)
+		allowedMimeTypes := map[string]bool{
+			"image/jpeg":      true,
+			"image/png":       true,
+			"application/pdf": true,
+		}
+		// Check previews (base64 data URLs)
+		for _, preview := range []string{formData.CancelledChequePreview, formData.PassbookPhotoPreview, formData.AadhaarPhotoPreview, formData.PaymentReceiptPreview} {
+			if strings.TrimSpace(preview) == "" {
+				continue
+			}
+			if !strings.HasPrefix(preview, "data:") {
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid file upload: not a data URL"})
+				return
+			}
+			meta := strings.SplitN(preview, ";", 2)
+			if len(meta) < 1 || !strings.HasPrefix(meta[0], "data:") {
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid file upload: missing MIME type"})
+				return
+			}
+			mimeType := strings.TrimPrefix(meta[0], "data:")
+			if !allowedMimeTypes[mimeType] {
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Only JPG, PNG, or PDF files are allowed (max 5MB each)"})
+				return
+			}
 		}
 
 		// Use GOOGLE_CREDENTIALS env var or fall back to secrets.json file

@@ -4,6 +4,9 @@ import { UserFormData } from "@/types";
 import FormWrapper from "./form-wrapper";
 import { ChevronDown, User, Building2, GraduationCap, Users, Phone, CreditCard, UsersRound, Check, Mail, AlertCircle, MapPin, House, CalendarDays } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, parse } from "date-fns";
 
 type UserFormDataProps = UserFormData & {
     updateFields: (fields: Partial<UserFormData>) => void;
@@ -181,6 +184,31 @@ export default function UserForm({
         Accomodation: "Event + stay"
     };
 
+    // Parse dateOfBirth string (dd:mm:yyyy) to Date object
+    const parseDOB = (dob: string) => {
+        if (!dob) return null;
+        const [dd, mm, yyyy] = dob.split(":");
+        if (!dd || !mm || !yyyy) return null;
+        return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+    };
+    const formatDOB = (date: Date | null) => {
+        if (!date) return "";
+        return format(date, "dd:MM:yyyy");
+    };
+    // Only set dobDate if dateOfBirth is present
+    const [dobDate, setDobDate] = useState<Date | null>(() => parseDOB(dateOfBirth));
+    useEffect(() => {
+        // Keep dobDate in sync if dateOfBirth changes externally
+        if (dateOfBirth && formatDOB(dobDate) !== dateOfBirth) {
+            setDobDate(parseDOB(dateOfBirth));
+        }
+    }, [dateOfBirth]);
+    useEffect(() => {
+        // Keep dobDate in sync if dateOfBirth changes externally
+        if (dateOfBirth && formatDOB(dobDate) !== dateOfBirth) {
+            setDobDate(parseDOB(dateOfBirth));
+        }
+    }, [dateOfBirth]);
     const age = calculateAge(dateOfBirth);
     const isMinor = age !== null ? age < 18 : scOrUni === "School";
     const isOtherInstitution = institutionName === "Others";
@@ -271,13 +299,20 @@ export default function UserForm({
                             Date of Birth
                             <span className="text-red-500 ml-0.5">*</span>
                         </label>
-                        <input
-                            required
-                            type="date"
+                        <DatePicker
+                            selected={dobDate}
+                            onChange={(date: Date | null) => {
+                                setDobDate(date);
+                                updateFields({ dateOfBirth: formatDOB(date) });
+                            }}
+                            dateFormat="dd:MM:yyyy"
+                            maxDate={new Date()}
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="select"
+                            placeholderText="dd:mm:yyyy"
                             className="form-input text-sm sm:text-base"
-                            value={dateOfBirth}
-                            onChange={(e) => updateFields({ dateOfBirth: e.target.value })}
-                            max={new Date().toISOString().split("T")[0]}
+                            required
                         />
                         {age !== null && (
                             <div className="flex items-center gap-2 text-xs mt-1.5">
