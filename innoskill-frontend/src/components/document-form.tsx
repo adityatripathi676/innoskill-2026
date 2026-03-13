@@ -24,6 +24,31 @@ type UploadCardProps = {
     maxSizeLabel?: string;
 }
 
+const getDataUrlMime = (value: string) => {
+    const match = value.match(/^data:([^;]+);/);
+    return match ? match[1].toLowerCase() : "";
+};
+
+const isBlockedExtension = (filename: string) => {
+    const lower = filename.toLowerCase();
+    return lower.endsWith(".mp3") || lower.endsWith(".mp4");
+};
+
+const isAllowedExtension = (filename: string) => {
+    const lower = filename.toLowerCase();
+    if (lower.endsWith(".pdf")) return true;
+    return (
+        lower.endsWith(".jpg") ||
+        lower.endsWith(".jpeg") ||
+        lower.endsWith(".png") ||
+        lower.endsWith(".webp") ||
+        lower.endsWith(".gif") ||
+        lower.endsWith(".bmp") ||
+        lower.endsWith(".heic") ||
+        lower.endsWith(".heif")
+    );
+};
+
 function UploadCard({
     title,
     description,
@@ -33,7 +58,7 @@ function UploadCard({
     required,
     onUpload,
     onRemove,
-    acceptedTypes = "image/*,.pdf",
+    acceptedTypes = "image/*,application/pdf",
     maxSizeLabel = "Max 5MB"
 }: UploadCardProps) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -47,17 +72,26 @@ function UploadCard({
             return;
         }
 
-        // Create preview for images
-        if (selectedFile.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                onUpload(selectedFile, reader.result as string);
-            };
-            reader.readAsDataURL(selectedFile);
-        } else {
-            // For PDFs, just store the file without preview
-            onUpload(selectedFile, "pdf");
+        const type = (selectedFile.type || "").toLowerCase();
+        if (type === "video/mp4" || type === "audio/mpeg" || type === "audio/mp3" || type === "audio/mp4" || isBlockedExtension(selectedFile.name)) {
+            alert("MP3/MP4 files are not allowed");
+            return;
         }
+
+        const isImage = type.startsWith("image/");
+        const isPdf = type === "application/pdf";
+        const hasAllowedExt = type === "" ? isAllowedExtension(selectedFile.name) : false;
+
+        if (!isImage && !isPdf && !hasAllowedExt) {
+            alert("Only image or PDF files are allowed");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            onUpload(selectedFile, reader.result as string);
+        };
+        reader.readAsDataURL(selectedFile);
     };
 
     const handleDrop = (e: React.DragEvent) => {
@@ -79,7 +113,8 @@ function UploadCard({
     };
 
     const isUploaded = !!preview;
-    const isPdf = preview === "pdf";
+    const previewMime = preview ? getDataUrlMime(preview) : "";
+    const isPdf = previewMime === "application/pdf";
 
     return (
         <>

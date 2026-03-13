@@ -42,22 +42,62 @@ export function PaymentForm({
         ? "https://paytm.me/PYTMPS/dGSFjpP"
         : "https://secure.paytmpayments.com/link/paymentForm/46694/LL_759455946";
 
+    const getDataUrlMime = (value: string) => {
+        const match = value.match(/^data:([^;]+);/);
+        return match ? match[1].toLowerCase() : "";
+    };
+
+    const isBlockedExtension = (filename: string) => {
+        const lower = filename.toLowerCase();
+        return lower.endsWith(".mp3") || lower.endsWith(".mp4");
+    };
+
+    const isAllowedExtension = (filename: string) => {
+        const lower = filename.toLowerCase();
+        if (lower.endsWith(".pdf")) return true;
+        return (
+            lower.endsWith(".jpg") ||
+            lower.endsWith(".jpeg") ||
+            lower.endsWith(".png") ||
+            lower.endsWith(".webp") ||
+            lower.endsWith(".gif") ||
+            lower.endsWith(".bmp") ||
+            lower.endsWith(".heic") ||
+            lower.endsWith(".heif")
+        );
+    };
+
     const handleFileSelect = (file: File) => {
         if (file.size > 5 * 1024 * 1024) {
             alert("File size must be less than 5MB");
             return;
         }
-        if (file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                updateFields({ paymentReceipt: file, paymentReceiptPreview: reader.result as string });
-            };
-            reader.readAsDataURL(file);
+        const type = (file.type || "").toLowerCase();
+        if (type === "video/mp4" || type === "audio/mpeg" || type === "audio/mp3" || type === "audio/mp4" || isBlockedExtension(file.name)) {
+            alert("MP3/MP4 files are not allowed");
+            return;
         }
+
+        const isImage = type.startsWith("image/");
+        const isPdf = type === "application/pdf";
+        const hasAllowedExt = type === "" ? isAllowedExtension(file.name) : false;
+
+        if (!isImage && !isPdf && !hasAllowedExt) {
+            alert("Only image or PDF files are allowed");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            updateFields({ paymentReceipt: file, paymentReceiptPreview: reader.result as string });
+        };
+        reader.readAsDataURL(file);
     };
 
     const isPaid = prices === 0;
     const isReceiptUploaded = !!paymentReceiptPreview;
+    const receiptMime = paymentReceiptPreview ? getDataUrlMime(paymentReceiptPreview) : "";
+    const isReceiptPdf = receiptMime === "application/pdf";
 
     return (
         <FormWrapper 
@@ -229,7 +269,7 @@ export function PaymentForm({
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/*,application/pdf"
                                     className="hidden"
                                     onChange={(e) => {
                                         const file = e.target.files?.[0];
@@ -248,13 +288,15 @@ export function PaymentForm({
                                                 <p className="text-xs text-green-600 truncate">{paymentReceipt?.name}</p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPreview(true)}
-                                                    className="p-2 rounded-lg bg-green-100 hover:bg-green-200 text-green-600 transition-colors"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
+                                                {!isReceiptPdf && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowPreview(true)}
+                                                        className="p-2 rounded-lg bg-green-100 hover:bg-green-200 text-green-600 transition-colors"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={() => updateFields({ paymentReceipt: null, paymentReceiptPreview: "" })}
@@ -299,7 +341,7 @@ export function PaymentForm({
             </div>
 
             {/* Preview Modal */}
-            {showPreview && paymentReceiptPreview && (
+            {showPreview && paymentReceiptPreview && !isReceiptPdf && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setShowPreview(false)}>
                     <div className="relative max-w-2xl max-h-[80vh] bg-white rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="sticky top-0 bg-white border-b border-slate-100 px-4 py-3 flex items-center justify-between">

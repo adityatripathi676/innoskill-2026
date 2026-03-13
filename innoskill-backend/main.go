@@ -1,27 +1,38 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/drive/v3"
 )
 
 type FormData struct {
 	UserFormData  `json:",inline"`
+	PhotoPreviewData `json:",inline"`
+	DocumentFileData `json:",inline"`
 	SubmittedAt   string `json:"submittedAt"`
 	TransactionID string `json:"transactionID" binding:"required"`
 	VerticalData  `json:",inline"`
 }
 
 var spreadsheetID = getEnv("SPREADSHEET_ID", "1e4ivJIoPODZZ-zVGAUF0jE_K_4W-suw79c1qxSL0To4")
+var oauthState string
 
 func getEnv(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
@@ -31,6 +42,8 @@ func getEnv(key, fallback string) string {
 }
 
 func main() {
+	loadDotEnv(".env")
+	printServiceAccountEmail()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
@@ -89,9 +102,65 @@ func main() {
 			return
 		}
 
+		driveSrv, err := createDriveService(ctx)
+		if err != nil {
+			fmt.Printf("failed to initialize drive service: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			return
+		}
+
+		uploadedPhotoURLs, err := uploadParticipantPhotos(driveSrv, formData)
+		if err != nil {
+			fmt.Printf("failed to upload participant photos: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+
+		guardianBankDocJSON, _ := json.Marshal(gin.H{
+			"guardian": gin.H{
+				"parentType":    formData.ParentType,
+				"parentName":    formData.ParentName,
+				"parentPhone":   formData.ParentPhone,
+				"parentAadhaar": formData.ParentAadhaar,
+			},
+			"bank": gin.H{
+				"accountHolderName":    formData.AccountHolderName,
+				"accountNumber":        formData.AccountNumber,
+				"confirmAccountNumber": formData.ConfirmAccountNumber,
+				"bankName":             formData.BankName,
+				"branchName":           formData.BranchName,
+				"ifscCode":             formData.IFSCCode,
+				"accountType":          formData.AccountType,
+				"isParentAccount":      formData.IsParentAccount,
+			},
+			"documents": gin.H{
+				"cancelledChequePreview": strings.TrimSpace(formData.CancelledChequePreview) != "",
+				"passbookPhotoPreview":   strings.TrimSpace(formData.PassbookPhotoPreview) != "",
+				"aadhaarPhotoPreview":    strings.TrimSpace(formData.AadhaarPhotoPreview) != "",
+				"paymentReceiptPreview":  strings.TrimSpace(formData.PaymentReceiptPreview) != "",
+				"cancelledChequeURL":     uploadedPhotoURLs.CancelledChequeURL,
+				"passbookPhotoURL":       uploadedPhotoURLs.PassbookPhotoURL,
+				"aadhaarPhotoURL":        uploadedPhotoURLs.AadhaarPhotoURL,
+				"paymentReceiptURL":      uploadedPhotoURLs.PaymentReceiptURL,
+			},
+		})
+
 		baseRow := []interface{}{ // this is like any in ts
-			formData.Name, formData.ScOrUni, formData.InstitutionName, formData.IntOrExt, formData.Roll,
+			formData.Name, formData.ScOrUni, resolvedInstitutionName(formData), formData.IntOrExt, formData.Roll,
 			formData.PhoneNumber, formData.FeeType, formData.TeamName, formData.SubmittedAt, formData.TransactionID,
+			uploadedPhotoURLs.CancelledChequeURL, uploadedPhotoURLs.PassbookPhotoURL,
+			uploadedPhotoURLs.AadhaarPhotoURL, uploadedPhotoURLs.PaymentReceiptURL,
+			formData.InstitutionName, formData.InstitutionOtherName,
+			formData.Email, formData.DateOfBirth,
+			formData.AddressLine1, formData.AddressLine2, formData.City, formData.State, formData.PinCode,
+			boolToYesNo(formData.IsTeamLeader),
+			formData.ParentType, formData.ParentName, formData.ParentPhone, formData.ParentAadhaar,
+			formData.AccountHolderName, formData.AccountNumber, formData.ConfirmAccountNumber,
+			formData.BankName, formData.BranchName, formData.IFSCCode, formData.AccountType,
+			boolToYesNo(formData.IsParentAccount), formData.TransactionDate, formData.TotalAmount,
+			boolToYesNo(strings.TrimSpace(formData.CancelledChequePreview) != ""), boolToYesNo(strings.TrimSpace(formData.PassbookPhotoPreview) != ""),
+			boolToYesNo(strings.TrimSpace(formData.AadhaarPhotoPreview) != ""), boolToYesNo(strings.TrimSpace(formData.PaymentReceiptPreview) != ""),
+			string(guardianBankDocJSON),
 		}
 
 		verticals := [][]Vertical{
@@ -114,6 +183,50 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"message": "form submitted", "data": formData})
+	})
+
+	// OAuth helpers (use once locally to fetch refresh token)
+	r.GET("/oauth/start", func(c *gin.Context) {
+		conf, err := oauthConfig()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		oauthState = generateOAuthState()
+		authURL := conf.AuthCodeURL(oauthState, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+		c.Redirect(http.StatusFound, authURL)
+	})
+
+	r.GET("/oauth/callback", func(c *gin.Context) {
+		if c.Query("state") == "" || c.Query("state") != oauthState {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state"})
+			return
+		}
+
+		conf, err := oauthConfig()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+
+		code := c.Query("code")
+		if code == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "missing oauth code"})
+			return
+		}
+
+		token, err := conf.Exchange(context.Background(), code)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf("token exchange failed: %v", err)})
+			return
+		}
+
+		if strings.TrimSpace(token.RefreshToken) == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "no refresh token returned; ensure access_type=offline and prompt=consent"})
+			return
+		}
+
+		c.String(http.StatusOK, "Refresh token:\n%s\n\nAdd this to GOOGLE_REFRESH_TOKEN in your backend env.\n", token.RefreshToken)
 	})
 
 	// GET /closed-events - returns list of closed events from config sheet
@@ -145,4 +258,96 @@ func main() {
 	// Use PORT env var (required by Railway/Render) or default to 8080
 	port := getEnv("PORT", "8080")
 	r.Run(":" + port)
+}
+
+// loadDotEnv reads KEY=VALUE lines from a .env file and sets unset env vars.
+// Lines starting with # and blank lines are ignored. Already-set env vars
+// are NOT overwritten (same behaviour as dotenv libraries).
+func loadDotEnv(filename string) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return // .env is optional
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		idx := strings.IndexByte(line, '=')
+		if idx < 1 {
+			continue
+		}
+		key := strings.TrimSpace(line[:idx])
+		val := strings.TrimSpace(line[idx+1:])
+		// Strip optional surrounding quotes
+		if len(val) >= 2 && ((val[0] == '"' && val[len(val)-1] == '"') || (val[0] == '\'' && val[len(val)-1] == '\'')) {
+			val = val[1 : len(val)-1]
+		}
+		if os.Getenv(key) == "" {
+			os.Setenv(key, val)
+		}
+	}
+}
+
+func printServiceAccountEmail() {
+	type saKey struct {
+		ClientEmail string `json:"client_email"`
+		ProjectID   string `json:"project_id"`
+	}
+	var sa saKey
+	if creds := os.Getenv("GOOGLE_CREDENTIALS"); creds != "" {
+		if err := json.Unmarshal([]byte(creds), &sa); err == nil {
+			fmt.Printf("[startup] Service account: %s (project: %s)\n", sa.ClientEmail, sa.ProjectID)
+			fmt.Printf("[startup] Share your Drive upload folder with: %s\n", sa.ClientEmail)
+		}
+	} else {
+		data, err := os.ReadFile("secrets.json")
+		if err == nil {
+			if err := json.Unmarshal(data, &sa); err == nil {
+				fmt.Printf("[startup] Service account: %s (project: %s)\n", sa.ClientEmail, sa.ProjectID)
+				fmt.Printf("[startup] Share your Drive upload folder with: %s\n", sa.ClientEmail)
+			}
+		}
+	}
+}
+
+func oauthConfig() (*oauth2.Config, error) {
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	redirectURL := getEnv("OAUTH_REDIRECT_URL", "http://localhost:8080/oauth/callback")
+	if clientID == "" || clientSecret == "" {
+		return nil, fmt.Errorf("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set")
+	}
+
+	return &oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
+		Scopes:       []string{drive.DriveScope},
+		Endpoint:     google.Endpoint,
+	}, nil
+}
+
+func generateOAuthState() string {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return strconv.FormatInt(time.Now().UnixNano(), 10)
+	}
+	return base64.RawURLEncoding.EncodeToString(b)
+}
+
+func resolvedInstitutionName(formData FormData) string {
+	if strings.EqualFold(strings.TrimSpace(formData.InstitutionName), "Others") && strings.TrimSpace(formData.InstitutionOtherName) != "" {
+		return strings.TrimSpace(formData.InstitutionOtherName)
+	}
+	return formData.InstitutionName
+}
+
+func boolToYesNo(value bool) string {
+	if value {
+		return "Yes"
+	}
+	return "No"
 }

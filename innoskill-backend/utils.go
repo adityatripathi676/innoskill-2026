@@ -75,7 +75,7 @@ func appendToSheet(
 	for _, v := range verticals {
 		if v.Members != nil {
 			row := append([]interface{}{}, baseRow...) // copy baseRow so we dont modify original
-			row = append(row, v.EventName, *v.Members, v.Price)
+			row = append(row, v.EventName, *v.Members, v.Price, v.Free, v.Closed)
 			rows = append(rows, row)
 		}
 	}
