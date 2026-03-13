@@ -32,7 +32,6 @@ type FormData struct {
 }
 
 var spreadsheetID = getEnv("SPREADSHEET_ID", "1e4ivJIoPODZZ-zVGAUF0jE_K_4W-suw79c1qxSL0To4")
-var oauthState string
 
 func getEnv(key, fallback string) string {
 	if value := os.Getenv(key); value != "" {
@@ -192,14 +191,17 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		oauthState = generateOAuthState()
-		authURL := conf.AuthCodeURL(oauthState, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+		state := generateOAuthState()
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie("oauth_state", state, 600, "/", "", isHTTPS(c), false)
+		authURL := conf.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 		c.Redirect(http.StatusFound, authURL)
 	})
 
 	r.GET("/oauth/callback", func(c *gin.Context) {
-		if c.Query("state") == "" || c.Query("state") != oauthState {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state"})
+		expectedState, _ := c.Cookie("oauth_state")
+		if expectedState == "" || c.Query("state") == "" || c.Query("state") != expectedState {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state. restart from /oauth/start and finish login in the same browser session", "cookieStatePresent": expectedState != "", "queryStatePresent": c.Query(\"state\") != \"\"})
 			return
 		}
 
@@ -316,7 +318,7 @@ func printServiceAccountEmail() {
 func oauthConfig() (*oauth2.Config, error) {
 	clientID := os.Getenv("GOOGLE_CLIENT_ID")
 	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	redirectURL := getEnv("OAUTH_REDIRECT_URL", "http://localhost:8080/oauth/callback")
+	redirectURL := getEnv("OAUTH_REDIRECT_URL", "https://innoskill-2026.onrender.com/oauth/callback")
 	if clientID == "" || clientSecret == "" {
 		return nil, fmt.Errorf("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set")
 	}
@@ -328,6 +330,14 @@ func oauthConfig() (*oauth2.Config, error) {
 		Scopes:       []string{drive.DriveScope},
 		Endpoint:     google.Endpoint,
 	}, nil
+}
+
+func isHTTPS(c *gin.Context) bool {
+	if c.Request.TLS != nil {
+		return true
+	}
+	proto := strings.ToLower(strings.TrimSpace(c.GetHeader("X-Forwarded-Proto")))
+	return proto == "https"
 }
 
 func generateOAuthState() string {
