@@ -54,7 +54,7 @@ func createDriveService(ctx context.Context) (*drive.Service, error) {
 	)
 }
 
-func uploadParticipantPhotos(srv *drive.Service, formData FormData) (UploadedPhotoURLs, error) {
+func uploadParticipantPhotos(ctx context.Context, srv *drive.Service, formData FormData) (UploadedPhotoURLs, error) {
 	urls := UploadedPhotoURLs{}
 	rootFolderID := getEnv("DRIVE_UPLOAD_ROOT_FOLDER_ID", "1_vFdDU6WNfmBn3C-kwfeJEZ-HsMQRc2X")
 	hasImagePreview := isDataURL(formData.CancelledChequePreview) ||
@@ -67,11 +67,11 @@ func uploadParticipantPhotos(srv *drive.Service, formData FormData) (UploadedPho
 		return urls, nil
 	}
 
-	if err := validateUploadRootFolder(srv, rootFolderID); err != nil {
+	if err := validateUploadRootFolder(ctx, srv, rootFolderID); err != nil {
 		return urls, err
 	}
 
-	participantFolderID, err := createParticipantFolder(srv, rootFolderID, formData)
+	participantFolderID, err := createParticipantFolder(ctx, srv, rootFolderID, formData)
 	if err != nil {
 		log.Printf("drive: failed to create participant folder for %s: %v", formData.PhoneNumber, err)
 		return urls, err
@@ -82,7 +82,7 @@ func uploadParticipantPhotos(srv *drive.Service, formData FormData) (UploadedPho
 	var failedDetails []string
 
 	if isDataURL(formData.CancelledChequePreview) {
-		urls.CancelledChequeURL, err = uploadDataURLToDrive(srv, participantFolderID, formData.CancelledChequePreview, "cancelled-cheque")
+		urls.CancelledChequeURL, err = uploadDataURLToDrive(ctx, srv, participantFolderID, formData.CancelledChequePreview, "cancelled-cheque")
 		if err != nil {
 			log.Printf("upload error (cancelled cheque): %v", err)
 			failedUploads = append(failedUploads, "cancelled cheque")
@@ -91,7 +91,7 @@ func uploadParticipantPhotos(srv *drive.Service, formData FormData) (UploadedPho
 	}
 
 	if isDataURL(formData.PassbookPhotoPreview) {
-		urls.PassbookPhotoURL, err = uploadDataURLToDrive(srv, participantFolderID, formData.PassbookPhotoPreview, "passbook-photo")
+		urls.PassbookPhotoURL, err = uploadDataURLToDrive(ctx, srv, participantFolderID, formData.PassbookPhotoPreview, "passbook-photo")
 		if err != nil {
 			log.Printf("upload error (passbook photo): %v", err)
 			failedUploads = append(failedUploads, "passbook photo")
@@ -100,7 +100,7 @@ func uploadParticipantPhotos(srv *drive.Service, formData FormData) (UploadedPho
 	}
 
 	if isDataURL(formData.AadhaarPhotoPreview) {
-		urls.AadhaarPhotoURL, err = uploadDataURLToDrive(srv, participantFolderID, formData.AadhaarPhotoPreview, "aadhaar-photo")
+		urls.AadhaarPhotoURL, err = uploadDataURLToDrive(ctx, srv, participantFolderID, formData.AadhaarPhotoPreview, "aadhaar-photo")
 		if err != nil {
 			log.Printf("upload error (aadhaar photo): %v", err)
 			failedUploads = append(failedUploads, "aadhaar photo")
@@ -109,7 +109,7 @@ func uploadParticipantPhotos(srv *drive.Service, formData FormData) (UploadedPho
 	}
 
 	if isDataURL(formData.PaymentReceiptPreview) {
-		urls.PaymentReceiptURL, err = uploadDataURLToDrive(srv, participantFolderID, formData.PaymentReceiptPreview, "payment-receipt")
+		urls.PaymentReceiptURL, err = uploadDataURLToDrive(ctx, srv, participantFolderID, formData.PaymentReceiptPreview, "payment-receipt")
 		if err != nil {
 			log.Printf("upload error (payment receipt): %v", err)
 			failedUploads = append(failedUploads, "payment receipt")
@@ -118,7 +118,7 @@ func uploadParticipantPhotos(srv *drive.Service, formData FormData) (UploadedPho
 	}
 
 	if len(failedUploads) > 0 {
-		if cleanupErr := deleteDriveFile(srv, participantFolderID); cleanupErr != nil {
+		if cleanupErr := deleteDriveFile(ctx, srv, participantFolderID); cleanupErr != nil {
 			log.Printf("drive: failed to clean up participant folder %s after upload failure: %v", participantFolderID, cleanupErr)
 		}
 
@@ -135,7 +135,7 @@ func isDataURL(preview string) bool {
 	return strings.HasPrefix(strings.TrimSpace(preview), "data:")
 }
 
-func createParticipantFolder(srv *drive.Service, rootFolderID string, formData FormData) (string, error) {
+func createParticipantFolder(ctx context.Context, srv *drive.Service, rootFolderID string, formData FormData) (string, error) {
 	folderName := sanitizeDriveName(fmt.Sprintf("%s-%s-%s", formData.Name, formData.PhoneNumber, strings.ReplaceAll(formData.SubmittedAt, " ", "-")))
 
 	folderMeta := &drive.File{
@@ -144,7 +144,7 @@ func createParticipantFolder(srv *drive.Service, rootFolderID string, formData F
 		Parents:  []string{rootFolderID},
 	}
 
-	created, err := srv.Files.Create(folderMeta).SupportsAllDrives(true).Fields("id").Do()
+	created, err := srv.Files.Create(folderMeta).SupportsAllDrives(true).Fields("id").Context(ctx).Do()
 	if err != nil {
 		return "", fmt.Errorf("failed to create participant folder: %w", err)
 	}
@@ -152,10 +152,11 @@ func createParticipantFolder(srv *drive.Service, rootFolderID string, formData F
 	return created.Id, nil
 }
 
-func validateUploadRootFolder(srv *drive.Service, rootFolderID string) error {
+func validateUploadRootFolder(ctx context.Context, srv *drive.Service, rootFolderID string) error {
 	rootFolder, err := srv.Files.Get(rootFolderID).
 		SupportsAllDrives(true).
 		Fields("id,name,mimeType,driveId,capabilities/canAddChildren").
+		Context(ctx).
 		Do()
 	if err != nil {
 		return fmt.Errorf("failed to access DRIVE_UPLOAD_ROOT_FOLDER_ID %s: %w", rootFolderID, err)
@@ -177,11 +178,11 @@ func validateUploadRootFolder(srv *drive.Service, rootFolderID string) error {
 	return nil
 }
 
-func deleteDriveFile(srv *drive.Service, fileID string) error {
-	return srv.Files.Delete(fileID).SupportsAllDrives(true).Do()
+func deleteDriveFile(ctx context.Context, srv *drive.Service, fileID string) error {
+	return srv.Files.Delete(fileID).SupportsAllDrives(true).Context(ctx).Do()
 }
 
-func uploadDataURLToDrive(srv *drive.Service, parentFolderID, dataURL, filePrefix string) (string, error) {
+func uploadDataURLToDrive(ctx context.Context, srv *drive.Service, parentFolderID, dataURL, filePrefix string) (string, error) {
 	matches := dataURLPattern.FindStringSubmatch(strings.TrimSpace(dataURL))
 	if len(matches) != 3 {
 		return "", fmt.Errorf("invalid data URL format")
@@ -213,12 +214,13 @@ func uploadDataURLToDrive(srv *drive.Service, parentFolderID, dataURL, filePrefi
 		Media(bytes.NewReader(rawBytes)).
 		SupportsAllDrives(true).
 		Fields("id,parents").
+		Context(ctx).
 		Do()
 	if err != nil {
 		return "", fmt.Errorf("failed to upload file %s: %w", fileName, err)
 	}
 
-	_, _ = srv.Permissions.Create(createdFile.Id, &drive.Permission{Type: "anyone", Role: "reader"}).SupportsAllDrives(true).Do()
+	_, _ = srv.Permissions.Create(createdFile.Id, &drive.Permission{Type: "anyone", Role: "reader"}).SupportsAllDrives(true).Context(ctx).Do()
 	return fmt.Sprintf("https://drive.google.com/file/d/%s/view?usp=sharing", createdFile.Id), nil
 }
 

@@ -42,11 +42,46 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+func getEnvInt(key string, fallback int) int {
+	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
+		if parsed, err := strconv.Atoi(value); err == nil {
+			return parsed
+		}
+	}
+	return fallback
+}
+
+func getEnvInt64(key string, fallback int64) int64 {
+	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
+		if parsed, err := strconv.ParseInt(value, 10, 64); err == nil {
+			return parsed
+		}
+	}
+	return fallback
+}
+
+func getEnvDuration(key string, fallback time.Duration) time.Duration {
+	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
+		if parsed, err := time.ParseDuration(value); err == nil {
+			return parsed
+		}
+	}
+	return fallback
+}
+
 func main() {
 	loadDotEnv(".env")
 	printServiceAccountEmail()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
+
+	maxRequestBytes := getEnvInt64("MAX_REQUEST_BYTES", 40<<20) // 40 MB default
+	if maxRequestBytes > 0 {
+		r.Use(func(c *gin.Context) {
+			c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxRequestBytes)
+			c.Next()
+		})
+	}
 
 	allowedOrigins := map[string]bool{
 		"http://localhost:3000":               true,
@@ -76,8 +111,26 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	requestTimeout := getEnvDuration("REQUEST_TIMEOUT", 60*time.Second)
+	maxConcurrent := getEnvInt("MAX_CONCURRENT_REQUESTS", 50)
+	var requestSem chan struct{}
+	if maxConcurrent > 0 {
+		requestSem = make(chan struct{}, maxConcurrent)
+	}
+
 	r.POST("/send", func(c *gin.Context) {
-		ctx := context.Background()
+		if requestSem != nil {
+			select {
+			case requestSem <- struct{}{}:
+				defer func() { <-requestSem }()
+			default:
+				c.JSON(http.StatusTooManyRequests, gin.H{"message": "server busy, please retry"})
+				return
+			}
+		}
+
+		ctx, cancel := context.WithTimeout(c.Request.Context(), requestTimeout)
+		defer cancel()
 		var formData FormData
 
 		if err := c.ShouldBindJSON(&formData); err != nil {
@@ -99,7 +152,7 @@ func main() {
 		}
 
 		// Check for duplicate transaction ID
-		isDuplicate, err := checkDuplicateTransactionID(srv, formData.TransactionID)
+		isDuplicate, err := checkDuplicateTransactionID(ctx, srv, formData.TransactionID)
 		if err != nil {
 			fmt.Printf("failed to check duplicate transaction ID: %v\n", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
@@ -111,7 +164,7 @@ func main() {
 		}
 
 		// Check for duplicate phone number
-		isPhoneDuplicate, err := checkDuplicatePhoneNumber(srv, formData.PhoneNumber)
+		isPhoneDuplicate, err := checkDuplicatePhoneNumber(ctx, srv, formData.PhoneNumber)
 		if err != nil {
 			fmt.Printf("failed to check duplicate phone number: %v\n", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
@@ -129,7 +182,7 @@ func main() {
 			return
 		}
 
-		uploadedPhotoURLs, err := uploadParticipantPhotos(driveSrv, formData)
+		uploadedPhotoURLs, err := uploadParticipantPhotos(ctx, driveSrv, formData)
 		if err != nil {
 			fmt.Printf("failed to upload participant photos: %v\n", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -195,7 +248,7 @@ func main() {
 		}
 
 		for i, vertical := range verticals {
-			if err := appendToSheet(srv, vertical, baseRow, strconv.Itoa(i+1)); err != nil {
+			if err := appendToSheet(ctx, srv, vertical, baseRow, strconv.Itoa(i+1)); err != nil {
 				fmt.Printf("failed to append to sheet %d: %v\n", i, err)
 				c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to append"})
 				return
@@ -265,7 +318,8 @@ func main() {
 
 	// GET /closed-events - returns list of closed events from config sheet
 	r.GET("/closed-events", func(c *gin.Context) {
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(c.Request.Context(), requestTimeout)
+		defer cancel()
 
 		var srv *sheets.Service
 		var err error
@@ -279,7 +333,7 @@ func main() {
 			return
 		}
 
-		closedEvents, err := getClosedEvents(srv)
+		closedEvents, err := getClosedEvents(ctx, srv)
 		if err != nil {
 			fmt.Printf("failed to get closed events: %v\n", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
@@ -291,7 +345,16 @@ func main() {
 
 	// Use PORT env var (required by Railway/Render) or default to 8080
 	port := getEnv("PORT", "8080")
-	r.Run(":" + port)
+	server := &http.Server{
+		Addr:              ":" + port,
+		Handler:           r,
+		ReadTimeout:       getEnvDuration("READ_TIMEOUT", 20*time.Second),
+		ReadHeaderTimeout: getEnvDuration("READ_HEADER_TIMEOUT", 10*time.Second),
+		WriteTimeout:      getEnvDuration("WRITE_TIMEOUT", 90*time.Second),
+		IdleTimeout:       getEnvDuration("IDLE_TIMEOUT", 120*time.Second),
+		MaxHeaderBytes:    1 << 20,
+	}
+	server.ListenAndServe()
 }
 
 // loadDotEnv reads KEY=VALUE lines from a .env file and sets unset env vars.

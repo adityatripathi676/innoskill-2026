@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 )
 
 // checkDuplicateTransactionID checks all vertical sheets for an existing transaction ID
-func checkDuplicateTransactionID(srv *sheets.Service, transactionID string) (bool, error) {
+func checkDuplicateTransactionID(ctx context.Context, srv *sheets.Service, transactionID string) (bool, error) {
 	// Skip duplicate check for free registrations
 	if strings.ToUpper(transactionID) == "FREE" {
 		return false, nil
@@ -17,7 +18,7 @@ func checkDuplicateTransactionID(srv *sheets.Service, transactionID string) (boo
 	// Transaction ID is in column J (10th column)
 	for i := 1; i <= 8; i++ {
 		readRange := fmt.Sprintf("vertical%d!J:J", i)
-		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			// If sheet doesn't exist or is empty, continue to next
 			continue
@@ -37,11 +38,11 @@ func checkDuplicateTransactionID(srv *sheets.Service, transactionID string) (boo
 }
 
 // checkDuplicatePhoneNumber checks all vertical sheets for an existing phone number
-func checkDuplicatePhoneNumber(srv *sheets.Service, phoneNumber string) (bool, error) {
+func checkDuplicatePhoneNumber(ctx context.Context, srv *sheets.Service, phoneNumber string) (bool, error) {
 	// Phone number is in column F (6th column)
 	for i := 1; i <= 8; i++ {
 		readRange := fmt.Sprintf("vertical%d!F:F", i)
-		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			// If sheet doesn't exist or is empty, continue to next
 			continue
@@ -61,6 +62,7 @@ func checkDuplicatePhoneNumber(srv *sheets.Service, phoneNumber string) (bool, e
 }
 
 func appendToSheet(
+	ctx context.Context,
 	srv *sheets.Service,
 	verticals []Vertical,
 	baseRow []interface{},
@@ -88,7 +90,7 @@ func appendToSheet(
 			spreadsheetID,
 			"vertical"+sheetIndex+"!A2", // Just specify the starting cell
 			valRange,
-		).ValueInputOption("RAW").Do()
+		).ValueInputOption("RAW").Context(ctx).Do()
 
 		if err != nil {
 			fmt.Printf("Failed to append data to sheet vertical%s: %v\n", sheetIndex, err)
@@ -101,11 +103,11 @@ func appendToSheet(
 }
 
 // getClosedEvents fetches the list of closed events from the config sheet
-func getClosedEvents(srv *sheets.Service) ([]string, error) {
+func getClosedEvents(ctx context.Context, srv *sheets.Service) ([]string, error) {
 	var closedEvents []string
 
 	readRange := "config!A:A"
-	resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
+	resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 	if err != nil {
 		// If config sheet doesn't exist, no events are closed
 		return closedEvents, nil
