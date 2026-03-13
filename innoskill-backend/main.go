@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -46,8 +48,26 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
+	allowedOrigins := map[string]bool{
+		"http://localhost:3000":               true,
+		"http://localhost:3001":               true,
+		"https://innoskill-2026.vercel.app":   true,
+		"https://innoskill-2026.onrender.com": true,
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001", "https://innoskill-2026.vercel.app", "https://innoskill-2026.onrender.com"},
+		AllowOriginFunc: func(origin string) bool {
+			if allowedOrigins[origin] {
+				return true
+			}
+			if strings.HasPrefix(origin, "https://innoskill-2026-") && strings.HasSuffix(origin, ".onrender.com") {
+				return true
+			}
+			if strings.HasPrefix(origin, "https://innoskill-2026-") && strings.HasSuffix(origin, ".vercel.app") {
+				return true
+			}
+			return false
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -191,7 +211,13 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		state := generateOAuthState()
+		stateSecret, err := oauthStateSecret()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		nonce := generateOAuthState()
+		state := signOAuthState(nonce, stateSecret)
 		c.SetSameSite(http.SameSiteLaxMode)
 		c.SetCookie("oauth_state", state, 600, "/", "", isHTTPS(c), false)
 		authURL := conf.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
@@ -199,9 +225,14 @@ func main() {
 	})
 
 	r.GET("/oauth/callback", func(c *gin.Context) {
-		expectedState, _ := c.Cookie("oauth_state")
-		if expectedState == "" || c.Query("state") == "" || c.Query("state") != expectedState {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state. restart from /oauth/start and finish login in the same browser session", "cookieStatePresent": expectedState != "", "queryStatePresent": c.Query("state") != ""})
+		stateSecret, err := oauthStateSecret()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		queryState := c.Query("state")
+		if queryState == "" || !validateOAuthState(queryState, stateSecret) {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "invalid oauth state. restart from /oauth/start on the same backend domain and finish login in the same browser session"})
 			return
 		}
 
@@ -332,6 +363,16 @@ func oauthConfig() (*oauth2.Config, error) {
 	}, nil
 }
 
+func oauthStateSecret() ([]byte, error) {
+	if secret := os.Getenv("OAUTH_STATE_SECRET"); secret != "" {
+		return []byte(secret), nil
+	}
+	if secret := os.Getenv("GOOGLE_CLIENT_SECRET"); secret != "" {
+		return []byte(secret), nil
+	}
+	return nil, fmt.Errorf("OAUTH_STATE_SECRET or GOOGLE_CLIENT_SECRET must be set")
+}
+
 func isHTTPS(c *gin.Context) bool {
 	if c.Request.TLS != nil {
 		return true
@@ -346,6 +387,30 @@ func generateOAuthState() string {
 		return strconv.FormatInt(time.Now().UnixNano(), 10)
 	}
 	return base64.RawURLEncoding.EncodeToString(b)
+}
+
+func signOAuthState(nonce string, secret []byte) string {
+	mac := hmac.New(sha256.New, secret)
+	mac.Write([]byte(nonce))
+	sig := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
+	return nonce + "." + sig
+}
+
+func validateOAuthState(state string, secret []byte) bool {
+	parts := strings.Split(state, ".")
+	if len(parts) != 2 {
+		return false
+	}
+	nonce := parts[0]
+	sig := parts[1]
+	mac := hmac.New(sha256.New, secret)
+	mac.Write([]byte(nonce))
+	expected := mac.Sum(nil)
+	got, err := base64.RawURLEncoding.DecodeString(sig)
+	if err != nil {
+		return false
+	}
+	return hmac.Equal(expected, got)
 }
 
 func resolvedInstitutionName(formData FormData) string {
