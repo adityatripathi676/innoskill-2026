@@ -52,6 +52,7 @@ func main() {
 		"http://localhost:3000":               true,
 		"http://localhost:3001":               true,
 		"https://innoskill-2026.vercel.app":   true,
+		"https://innoskill-2026-eight.vercel.app": true,
 		"https://innoskill-2026.onrender.com": true,
 	}
 
