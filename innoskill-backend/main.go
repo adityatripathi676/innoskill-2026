@@ -347,6 +347,9 @@ func main() {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
+	r.HEAD("/health", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
 
 	// Use PORT env var (required by Railway/Render) or default to 8080
 	port := getEnv("PORT", "8080")
