@@ -343,6 +343,11 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"closedEvents": closedEvents})
 	})
 
+	// Health check
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
 	// Use PORT env var (required by Railway/Render) or default to 8080
 	port := getEnv("PORT", "8080")
 	server := &http.Server{
