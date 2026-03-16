@@ -416,7 +416,7 @@ export default function UserForm({
                         <input
                             required
                             type="text"
-                            placeholder={intOrExt === "Internal" ? "e.g., 2024CSE001" : "School/College ID"}
+                            placeholder={intOrExt === "Internal" ? "e.g., 2026CSE001" : "School/College ID"}
                             className="form-input text-sm sm:text-base"
                             value={roll}
                             onChange={(e) => updateFields({ roll: e.target.value })}

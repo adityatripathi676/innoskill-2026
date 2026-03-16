@@ -414,7 +414,7 @@ export default function Page() {
                                             25
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-slate-900">INNOSKILL 2025</h4>
+                                            <h4 className="font-bold text-slate-900">INNOSKILL 2026</h4>
                                             <p className="text-sm text-slate-600">Celebrating Innovation</p>
                                         </div>
                                     </div>
@@ -502,7 +502,7 @@ export default function Page() {
                 <div className={`relative z-10 text-center px-6 max-w-4xl mx-auto transition-all duration-700 ${ctaSection.isRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <div className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-6 py-3 mb-8 backdrop-blur-sm">
                         <MapPin className="text-orange-400" size={18} />
-                        <span className="text-white/90">MRIIRS, Faridabad • 3rd - 4th April, 2025</span>
+                        <span className="text-white/90">MRIIRS, Faridabad • 3rd - 4th April, 2026</span>
                     </div>
 
                     <h2 className="text-5xl md:text-7xl font-black text-white leading-tight">

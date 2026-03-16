@@ -23,7 +23,7 @@ export default function FormFooter({ dark = false }: { dark?: boolean }) {
                 <div className="space-y-3">
                     <h4 className={`font-semibold ${dark ? "text-white" : "text-slate-800"}`}>Credits</h4>
                     <p className={`text-sm leading-6 ${dark ? "text-slate-400" : "text-slate-600"}`}>
-                        Designed and Developed by <span className="text-orange-500 font-medium">Aditya Tripathi</span> and <span className="text-orange-500 font-medium">Saurav Kumar</span> under MRIIRS, Faridabad.
+                        Designed and Developed by <a href="https://www.linkedin.com/in/aditya766/" target="_blank" rel="noopener noreferrer" className="text-orange-500 font-medium hover:underline">Aditya Tripathi</a> and <a href="https://www.linkedin.com/in/saurav-kumar-astro/" target="_blank" rel="noopener noreferrer" className="text-orange-500 font-medium hover:underline">Saurav Kumar</a> under MRIIRS, Faridabad.
                     </p>
                 </div>
             </div>
