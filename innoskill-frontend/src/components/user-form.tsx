@@ -2,7 +2,7 @@
 
 import { UserFormData } from "@/types";
 import FormWrapper from "./form-wrapper";
-import { ChevronDown, User, Building2, GraduationCap, Users, Phone, CreditCard, UsersRound, Check, Mail, AlertCircle, MapPin, House, CalendarDays } from "lucide-react";
+import { ChevronDown, User, Building2, GraduationCap, Users, Phone, UsersRound, Check, Mail, AlertCircle, MapPin, House, CalendarDays } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 
 type UserFormDataProps = UserFormData & {
@@ -163,7 +163,6 @@ export default function UserForm({
     city,
     state,
     pinCode,
-    feeType,
     teamName,
     updateFields
 }: UserFormDataProps) {
@@ -174,11 +173,6 @@ export default function UserForm({
         MRU: "Manav Rachna University",
         MRIIRS: "MR International Institute of Research & Studies",
         Others: "Enter your own school or university"
-    };
-
-    const feeDescriptions: Record<string, string> = {
-        Registration: "Event participation",
-        Accomodation: "Event + stay"
     };
 
     const age = calculateAge(dateOfBirth);
@@ -307,6 +301,22 @@ export default function UserForm({
                             />
                         </div>
                     </div>
+                </div>
+
+                <div className="form-field-group">
+                    <label className="form-label text-xs sm:text-sm">
+                        <UsersRound className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        Team Name
+                        <span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input
+                        required
+                        type="text"
+                        placeholder="Enter your team name"
+                        className="form-input text-sm sm:text-base"
+                        value={teamName}
+                        onChange={(e) => updateFields({ teamName: e.target.value })}
+                    />
                 </div>
 
                 <div className="flex items-center gap-3 mt-2">
@@ -514,41 +524,6 @@ export default function UserForm({
                         value={addressLine2}
                         onChange={(e) => updateFields({ addressLine2: e.target.value })}
                     />
-                </div>
-
-                <div className="flex items-center gap-3 mt-2">
-                    <div className="p-2 bg-red-100 rounded-xl flex-shrink-0">
-                        <CreditCard className="w-4 h-4 text-red-600" />
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-800">Registration Details</h3>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <CustomDropdown
-                        label="Fee Type"
-                        icon={CreditCard}
-                        value={feeType}
-                        placeholder="Select fee type"
-                        options={["Registration", "Accomodation"]}
-                        onSelect={(option) => updateFields({ feeType: option as UserFormData["feeType"] })}
-                        descriptions={feeDescriptions}
-                    />
-
-                    <div className="form-field-group">
-                        <label className="form-label text-xs sm:text-sm">
-                            <UsersRound className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                            Team Name
-                            <span className="text-red-500 ml-0.5">*</span>
-                        </label>
-                        <input
-                            required
-                            type="text"
-                            placeholder="Enter your team name"
-                            className="form-input text-sm sm:text-base"
-                            value={teamName}
-                            onChange={(e) => updateFields({ teamName: e.target.value })}
-                        />
-                    </div>
                 </div>
 
                 {isMinor && (
