@@ -2,6 +2,7 @@ import { Poppins } from 'next/font/google'
 import "@/app/globals.css"
 import { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
+import SiteNav from '@/components/site-nav';
 
 const poppins = Poppins({ subsets: ['latin'], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
 
@@ -47,6 +48,9 @@ export default function RootLayout({
             },
           }}
         />
+        {/* SiteNav is rendered here, outside <main>, so its fixed mobile menu
+            is never trapped inside a CSS-transform-animated ancestor element. */}
+        <SiteNav />
         <main className="page-enter">
           {children}
         </main>

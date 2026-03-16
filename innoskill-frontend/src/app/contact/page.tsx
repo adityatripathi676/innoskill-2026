@@ -1,7 +1,6 @@
 "use client";
 
 import FormFooter from "@/components/form-footer";
-import SiteNav from "@/components/site-nav";
 import { Mail, MapPin, Phone, Clock, Building, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -12,8 +11,6 @@ export default function ContactPage() {
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50/30 to-rose-50/30 overflow-hidden pt-24">
-            <SiteNav />
-
             {/* Hero Section */}
             <section ref={heroSection.ref} className="relative py-20 overflow-hidden">
                 {/* Background image with overlay */}

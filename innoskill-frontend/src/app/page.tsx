@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import FormFooter from "@/components/form-footer";
-import SiteNav from "@/components/site-nav";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
@@ -90,8 +89,6 @@ export default function Page() {
 
     return (
         <main className="min-h-screen bg-slate-950 text-white overflow-hidden">
-            <SiteNav dark />
-
             {/* HERO - Minimal centered design */}
             <section className="relative h-screen flex items-center justify-center overflow-hidden">
                 {/* Hero Image */}

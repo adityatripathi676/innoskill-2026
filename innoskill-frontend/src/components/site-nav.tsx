@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Home, Phone, Sparkles, ChevronRight } from "lucide-react";
+import { Home, Phone, Sparkles, ChevronRight, ExternalLink } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import mrlogo from "@/assets/mrlogo.png";
@@ -37,8 +37,9 @@ export default function SiteNav({
     }, [isMenuOpen]);
 
     const navLinks = [
-        { href: "/", label: "Home", icon: Home },
-        { href: "/contact", label: "Contact", icon: Phone },
+        { href: "/", label: "Home", icon: Home, external: false },
+        { href: "/contact", label: "Contact", icon: Phone, external: false },
+        { href: "https://innoskill.mriic.tech/", label: "Official Page", icon: ExternalLink, external: true },
     ];
 
     const isActive = (href: string) => {
@@ -82,8 +83,23 @@ export default function SiteNav({
                         }`}>
                             {navLinks.map((link) => {
                                 const Icon = link.icon;
-                                const active = isActive(link.href);
-                                return (
+                                const active = !link.external && isActive(link.href);
+                                return link.external ? (
+                                    <a
+                                        key={link.href}
+                                        href={link.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                                            scrolled
+                                                ? "text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm"
+                                                : "text-white/80 hover:bg-white/20 hover:text-white"
+                                        }`}
+                                    >
+                                        <Icon className="w-4 h-4" />
+                                        <span>{link.label}</span>
+                                    </a>
+                                ) : (
                                     <Link 
                                         key={link.href}
                                         href={link.href} 
@@ -184,8 +200,27 @@ export default function SiteNav({
                     <nav className="flex-1 flex flex-col justify-center px-6 -mt-16">
                         {navLinks.map((link, index) => {
                             const Icon = link.icon;
-                            const active = isActive(link.href);
-                            return (
+                            const active = !link.external && isActive(link.href);
+                            return link.external ? (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`group flex items-center gap-4 py-5 border-b border-white/10 transition-all duration-300 ${
+                                        isMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"
+                                    }`}
+                                    style={{ transitionDelay: `${150 + index * 75}ms` }}
+                                >
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/10 text-white group-hover:bg-white/20 transition-all duration-300">
+                                        <Icon className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className="text-2xl font-bold text-white/90">{link.label}</span>
+                                    </div>
+                                    <ExternalLink className="w-5 h-5 text-white/40 group-hover:text-white transition-all duration-300" />
+                                </a>
+                            ) : (
                                 <Link
                                     key={link.href}
                                     href={link.href}

@@ -45,7 +45,8 @@ function PaymentModal({ isOpen, onClose, fromUni, totalPrice }: { isOpen: boolea
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const bankDetails = { bankName: "Axis Bank", accountName: "MANAV RACHNA INTERNATIONAL INSTITUTE OF RESEARCH AND STUDIES GST", accountNo: "924020046485383", ifscCode: "UTIB0002693" };
     const copyToClipboard = (text: string, field: string) => { navigator.clipboard.writeText(text); setCopiedField(field); setTimeout(() => setCopiedField(null), 2000); };
-    const upiLink = fromUni ? "https://paytm.me/PYTMPS/dGSFjpP" : "https://secure.paytmpayments.com/link/paymentForm/46694/LL_759455946";
+    // TODO: Update UPI payment links before re-enabling the UPI payment option
+    const upiLink = fromUni ? "YOUR_UNI_UPI_LINK_HERE" : "YOUR_EXTERNAL_UPI_LINK_HERE";
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
@@ -59,10 +60,13 @@ function PaymentModal({ isOpen, onClose, fromUni, totalPrice }: { isOpen: boolea
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
                 </div>
                 <div className="p-6 space-y-4">
+                    {/* UPI Payment Option - Hidden until URLs are updated */}
+                    {false && (
                     <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200">
                         <div className="flex items-center gap-3 mb-3"><QrCode className="w-5 h-5 text-violet-600" /><span className="font-bold text-violet-800">UPI Payment</span><span className="ml-auto text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full font-medium">Recommended</span></div>
                         <button onClick={() => window.open(upiLink, '_blank')} className="w-full py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-purple-500/30 transition-all"><span>Pay ₹{totalPrice} via UPI</span><ExternalLink className="w-4 h-4" /></button>
                     </div>
+                    )}
                     <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
                         <div className="flex items-center gap-3 mb-3"><Building2 className="w-5 h-5 text-blue-600" /><span className="font-bold text-blue-800">Bank Transfer</span></div>
                         <div className="space-y-2">

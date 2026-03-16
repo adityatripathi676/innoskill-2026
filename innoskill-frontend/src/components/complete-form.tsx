@@ -1,13 +1,10 @@
 import FormFooter from "./form-footer";
-import SiteNav from "./site-nav";
 import { CheckCircle, Home, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function CompleteForm() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 overflow-hidden">
-            <SiteNav />
-            
             <section className="relative min-h-[calc(100vh-200px)] flex items-center justify-center overflow-hidden py-20">
                 {/* Background orbs */}
                 <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-gradient-to-r from-emerald-200/40 to-teal-200/40 rounded-full blur-3xl" style={{ animation: 'morphBlob 12s ease-in-out infinite' }} />

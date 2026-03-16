@@ -8,7 +8,6 @@ import FormHeader from "@/components/form-header";
 import ParentForm from "@/components/parent-form";
 import { PaymentForm } from "@/components/payment-form";
 import ProgressBar from "@/components/progress-bar";
-import SiteNav from "@/components/site-nav";
 import UserForm from "@/components/user-form";
 import { useMultiForm } from "@/hooks/useMultiForm";
 import { userFormSchema, parentFormSchema, bankFormSchema } from "@/schemas/userFormSchema";
@@ -473,7 +472,6 @@ export default function RegistrationPage() {
 
     return (
         <main className="min-h-screen bg-slate-50 pt-24">
-            <SiteNav />
             <section className="relative min-h-[calc(100vh-72px)] flex items-start justify-center py-8 sm:py-14">
                 {/* Subtle warm gradient background */}
                 <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-orange-50/80 via-orange-50/20 to-transparent pointer-events-none" />

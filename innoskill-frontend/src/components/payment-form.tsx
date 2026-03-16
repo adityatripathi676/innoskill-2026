@@ -38,9 +38,10 @@ export function PaymentForm({
         setTimeout(() => setCopiedField(null), 2000);
     };
 
+    // TODO: Update UPI payment links before re-enabling the UPI payment option
     const upiLink = fromUni 
-        ? "https://paytm.me/PYTMPS/dGSFjpP"
-        : "https://secure.paytmpayments.com/link/paymentForm/46694/LL_759455946";
+        ? "YOUR_UNI_UPI_LINK_HERE"
+        : "YOUR_EXTERNAL_UPI_LINK_HERE";
 
     const getDataUrlMime = (value: string) => {
         const match = value.match(/^data:([^;]+);/);
@@ -138,7 +139,8 @@ export function PaymentForm({
                     <>
                         {/* Payment Methods */}
                         <div className="space-y-3">
-                            {/* UPI Payment Option */}
+                            {/* UPI Payment Option - Hidden until URLs are updated */}
+                        {false && (
                                 <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300 overflow-visible">
                                 <div className="flex flex-wrap items-start gap-2 sm:gap-3 mb-4">
                                     <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex-shrink-0">
@@ -166,6 +168,7 @@ export function PaymentForm({
                                     <span>Secured by PayTM Payment Gateway</span>
                                 </div>
                             </div>
+                        )}
 
                             {/* Bank Transfer Option */}
                             <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300">
