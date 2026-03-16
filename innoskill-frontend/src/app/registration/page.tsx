@@ -566,7 +566,7 @@ export default function RegistrationPage() {
                     </div>
 
                     <p className="text-center mt-5 text-slate-400 text-xs sm:text-sm">
-                        Need help? <a href="mailto:innoskills@mriirs.edu.in" className="text-orange-500 hover:text-orange-600 font-medium transition-colors">innoskills@mriirs.edu.in</a>
+                        Need help? <a href="mailto:abhilasha.set@mriu.edu.in" className="text-orange-500 hover:text-orange-600 font-medium transition-colors">abhilasha.set@mriu.edu.in</a>
                     </p>
                 </div>
             </section>
