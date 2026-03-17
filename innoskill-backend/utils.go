@@ -15,9 +15,9 @@ func checkDuplicateTransactionID(ctx context.Context, srv *sheets.Service, trans
 		return false, nil
 	}
 
-	// Transaction ID is in column J (10th column)
+	// Transaction ID is in column K (11th column)
 	for i := 1; i <= 8; i++ {
-		readRange := fmt.Sprintf("vertical%d!J:J", i)
+		readRange := fmt.Sprintf("vertical%d!K:K", i)
 		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			// If sheet doesn't exist or is empty, continue to next
@@ -39,9 +39,9 @@ func checkDuplicateTransactionID(ctx context.Context, srv *sheets.Service, trans
 
 // checkDuplicatePhoneNumber checks all vertical sheets for an existing phone number
 func checkDuplicatePhoneNumber(ctx context.Context, srv *sheets.Service, phoneNumber string) (bool, error) {
-	// Phone number is in column F (6th column)
+	// Phone number is in column G (7th column)
 	for i := 1; i <= 8; i++ {
-		readRange := fmt.Sprintf("vertical%d!F:F", i)
+		readRange := fmt.Sprintf("vertical%d!G:G", i)
 		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			// If sheet doesn't exist or is empty, continue to next
@@ -127,4 +127,27 @@ func getClosedEvents(ctx context.Context, srv *sheets.Service) ([]string, error)
 	}
 
 	return closedEvents, nil
+}
+
+// checkDuplicateAadhaarNumber checks all vertical sheets for an existing Aadhaar number
+func checkDuplicateAadhaarNumber(ctx context.Context, srv *sheets.Service, aadhaar string) (bool, error) {
+	// Aadhaar is in column F (6th column)
+	for i := 1; i <= 8; i++ {
+		readRange := fmt.Sprintf("vertical%d!F:F", i)
+		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
+		if err != nil {
+			continue
+		}
+
+		for _, row := range resp.Values {
+			if len(row) > 0 {
+				existingAadhaar, ok := row[0].(string)
+				if ok && strings.TrimSpace(existingAadhaar) == strings.TrimSpace(aadhaar) {
+					return true, nil
+				}
+			}
+		}
+	}
+
+	return false, nil
 }

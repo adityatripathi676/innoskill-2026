@@ -22,7 +22,7 @@ const initialData: FormData = {
     name: "",
     email: "",
     dateOfBirth: "",
-    scOrUni: "School",
+    scOrUni: "University",
     institutionName: "",
     institutionOtherName: "",
     intOrExt: "Internal",
@@ -36,6 +36,7 @@ const initialData: FormData = {
     feeType: "Registration",
     teamName: "",
     isTeamLeader: true,
+    aadhaarNumber: "",
     
     // Parent Details
     parentType: "Father",
@@ -129,16 +130,7 @@ const initialData: FormData = {
     ],
 };
 
-// Step labels for the progress indicator
-// Step configuration with icons for the progress indicator
-const STEP_CONFIG = [
-    { label: "Personal", Icon: User },
-    { label: "Guardian", Icon: Shield },
-    { label: "Bank", Icon: Landmark },
-    { label: "Documents", Icon: FolderOpen },
-    { label: "Events", Icon: CalendarDays },
-    { label: "Payment", Icon: CreditCard },
-];
+// RegistrationPage component start
 
 export default function RegistrationPage() {
     const [data, setData] = useState<FormData>(initialData);
@@ -169,20 +161,31 @@ export default function RegistrationPage() {
         setData((prev) => ({ ...prev, ...fields }));
     };
 
-    // Build form steps dynamically based on whether user is team leader
-    const formSteps = useMemo(() => {
-        const steps = [
-            <UserForm {...data} updateFields={updateFields} key="user" />,
-            <ParentForm 
-                parentType={data.parentType}
-                parentName={data.parentName}
-                parentPhone={data.parentPhone}
-                parentAadhaar={data.parentAadhaar}
-                updateFields={updateFields}
-                isMinor={isMinor}
-                key="parent"
-            />,
-            <BankForm 
+    // Build dynamic step configuration
+    const stepConfigs = useMemo(() => {
+        const configs = [
+            { id: "personal", label: "Personal", Icon: User, component: <UserForm {...data} updateFields={updateFields} key="user" /> },
+        ];
+
+        if (isMinor) {
+            configs.push({ 
+                id: "guardian",
+                label: "Guardian", 
+                Icon: Shield, 
+                component: <ParentForm 
+                                parentType={data.parentType}
+                                parentName={data.parentName}
+                                parentPhone={data.parentPhone}
+                                parentAadhaar={data.parentAadhaar}
+                                updateFields={updateFields}
+                                isMinor={isMinor}
+                                key="parent"
+                            /> 
+            });
+        }
+
+        configs.push(
+            { id: "bank", label: "Bank", Icon: Landmark, component: <BankForm 
                 accountHolderName={data.accountHolderName}
                 accountNumber={data.accountNumber}
                 confirmAccountNumber={data.confirmAccountNumber}
@@ -195,8 +198,8 @@ export default function RegistrationPage() {
                 isMinor={isMinor}
                 parentName={data.parentName}
                 key="bank"
-            />,
-            <DocumentForm 
+            /> },
+            { id: "documents", label: "Documents", Icon: FolderOpen, component: <DocumentForm 
                 cancelledCheque={data.cancelledCheque}
                 cancelledChequePreview={data.cancelledChequePreview}
                 passbookPhoto={data.passbookPhoto}
@@ -206,9 +209,9 @@ export default function RegistrationPage() {
                 updateFields={updateFields}
                 isMinor={isMinor}
                 key="documents"
-            />,
-            <EventForm {...data} updateFields={updateFields} setPrices={setPrices} fromUni={fromUni} key="events" />,
-            <PaymentForm 
+            /> },
+            { id: "events", label: "Events", Icon: CalendarDays, component: <EventForm {...data} updateFields={updateFields} setPrices={setPrices} fromUni={fromUni} key="events" /> },
+            { id: "payment", label: "Payment", Icon: CreditCard, component: <PaymentForm 
                 transactionID={data.transactionID}
                 transactionDate={data.transactionDate}
                 paymentReceipt={data.paymentReceipt}
@@ -218,11 +221,13 @@ export default function RegistrationPage() {
                 prices={prices}
                 fromUni={fromUni}
                 key="payment"
-            />,
-        ];
-        return steps;
+            /> },
+        );
+
+        return configs;
     }, [data, isMinor, prices, fromUni]);
 
+    const formSteps = useMemo(() => stepConfigs.map(s => s.component), [stepConfigs]);
     const { currentStepIndex, step, FirstStep, LastStep, back, next, isTransitioning, direction } = useMultiForm(formSteps);
     
     const totalSteps = formSteps.length;
@@ -235,8 +240,10 @@ export default function RegistrationPage() {
     };
 
     const validateCurrentStep = (): boolean => {
-        // Step 0: Personal Details
-        if (currentStepIndex === 0) {
+        const currentStepId = stepConfigs[currentStepIndex]?.id;
+
+        // Step: Personal Details
+        if (currentStepId === "personal") {
             const {
                 name,
                 email,
@@ -255,6 +262,7 @@ export default function RegistrationPage() {
                 state,
                 pinCode,
                 isTeamLeader,
+                aadhaarNumber,
             } = data;
 
             if (institutionName === "MRIS" && scOrUni !== "School") {
@@ -290,6 +298,7 @@ export default function RegistrationPage() {
                 state,
                 pinCode,
                 isTeamLeader,
+                aadhaarNumber,
             });
             
             if (!validated.success) {
@@ -298,8 +307,8 @@ export default function RegistrationPage() {
             }
         }
 
-        // Step 1: Parent/Guardian Details
-        if (currentStepIndex === 1) {
+        // Step: Parent/Guardian Details (Only validated if shown)
+        if (currentStepId === "guardian") {
             const { parentType, parentName, parentPhone, parentAadhaar } = data;
             
             const validated = parentFormSchema.safeParse({ parentType, parentName, parentPhone, parentAadhaar });
@@ -310,8 +319,8 @@ export default function RegistrationPage() {
             }
         }
 
-        // Step 2: Bank Details
-        if (currentStepIndex === 2) {
+        // Step: Bank Details
+        if (currentStepId === "bank") {
             const { accountHolderName, accountNumber, confirmAccountNumber, bankName, branchName, ifscCode, accountType, isParentAccount } = data;
             
             const validated = bankFormSchema.safeParse({
@@ -324,32 +333,26 @@ export default function RegistrationPage() {
             }
         }
 
-        // Step 3: Document Upload
-        if (currentStepIndex === 3) {
+        // Step: Document Upload
+        if (currentStepId === "documents") {
             const { cancelledChequePreview, passbookPhotoPreview, aadhaarPhotoPreview } = data;
             
-            if (!cancelledChequePreview) {
-                showError("Please upload a cancelled cheque");
+            if (!aadhaarPhotoPreview) {
+                showError("Aadhaar card is required for identity verification");
                 return false;
             }
-            
-            if (!passbookPhotoPreview) {
-                showError("Please upload passbook front page");
-                return false;
-            }
-            
-            // Aadhaar is mandatory for minors
-            if (isMinor && !aadhaarPhotoPreview) {
-                showError("Aadhaar card is required for school students");
+
+            if (!cancelledChequePreview && !passbookPhotoPreview) {
+                showError("Please upload either a cancelled cheque or passbook front page");
                 return false;
             }
         }
 
-        // Step 4: Event Selection - at least one event is required before payment
-        if (currentStepIndex === 4) {
+        // Step: Event Selection - at least one event is required before payment
+        if (currentStepId === "events") {
             const hasSelectedEvent = [
                 ...data.vertical1,
-                ...data.vertical2,
+                 ...data.vertical2,
                 ...data.vertical3,
                 ...data.vertical4,
                 ...data.vertical5,
@@ -364,8 +367,8 @@ export default function RegistrationPage() {
             }
         }
 
-        // Step 5: Payment Details
-        if (currentStepIndex === 5) {
+        // Step: Payment Details
+        if (currentStepId === "payment") {
             if (prices > 0) {
                 if (!data.transactionID) {
                     showError("Please enter the Transaction ID");
@@ -489,7 +492,7 @@ export default function RegistrationPage() {
 
                             {/* Icon Step Indicator */}
                             <div className="flex items-center mt-7 mb-8 sm:mb-10">
-                                {STEP_CONFIG.map(({ label, Icon }, idx) => (
+                                {stepConfigs.map(({ label, Icon }, idx) => (
                                     <Fragment key={idx}>
                                         <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
                                             <div className={`
@@ -513,7 +516,7 @@ export default function RegistrationPage() {
                                                 currentStepIndex === idx ? 'text-orange-500' : currentStepIndex > idx ? 'text-blue-500' : 'text-slate-300'
                                             }`}>{label}</span>
                                         </div>
-                                        {idx < STEP_CONFIG.length - 1 && (
+                                        {idx < stepConfigs.length - 1 && (
                                             <div className={`flex-1 h-0.5 mx-1.5 sm:mx-2.5 mb-5 rounded-full transition-all duration-500 ${currentStepIndex > idx ? 'bg-blue-400' : 'bg-slate-200'}`} />
                                         )}
                                     </Fragment>

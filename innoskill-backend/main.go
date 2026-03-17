@@ -175,6 +175,18 @@ func main() {
 			return
 		}
 
+		// Check for duplicate Aadhaar number
+		isAadhaarDuplicate, err := checkDuplicateAadhaarNumber(ctx, srv, formData.AadhaarNumber)
+		if err != nil {
+			fmt.Printf("failed to check duplicate Aadhaar number: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			return
+		}
+		if isAadhaarDuplicate {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "This Aadhaar number has already been registered. Each participant can only register once."})
+			return
+		}
+
 		driveSrv, err := createDriveService(ctx)
 		if err != nil {
 			fmt.Printf("failed to initialize drive service: %v\n", err)
@@ -219,7 +231,7 @@ func main() {
 		})
 
 		baseRow := []interface{}{ // this is like any in ts
-			formData.Name, formData.ScOrUni, resolvedInstitutionName(formData), formData.IntOrExt, formData.Roll,
+			formData.Name, formData.ScOrUni, resolvedInstitutionName(formData), formData.IntOrExt, formData.Roll, formData.AadhaarNumber,
 			formData.PhoneNumber, formData.FeeType, formData.TeamName, formData.SubmittedAt, formData.TransactionID,
 			uploadedPhotoURLs.CancelledChequeURL, uploadedPhotoURLs.PassbookPhotoURL,
 			uploadedPhotoURLs.AadhaarPhotoURL, uploadedPhotoURLs.PaymentReceiptURL,

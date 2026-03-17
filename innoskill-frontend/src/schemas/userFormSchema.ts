@@ -22,7 +22,10 @@ export const userFormSchema = z.object({
     teamName: z.string()
         .min(2, { message: "Team name must be at least 2 characters" })
         .regex(/^(?=.*[a-zA-Z])[a-zA-Z0-9 _-]+$/, { message: "Team name must contain at least one letter" }),
-    isTeamLeader: z.boolean()
+    isTeamLeader: z.boolean(),
+    aadhaarNumber: z.string()
+        .length(12, { message: "Aadhaar number must be 12 digits" })
+        .regex(/^\d{12}$/, { message: "Aadhaar must contain only digits" }),
 }).refine((data) => data.institutionName !== "Others" || (data.institutionOtherName?.trim().length ?? 0) >= 2, {
     message: "Enter your school or university name",
     path: ["institutionOtherName"],

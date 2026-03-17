@@ -25,6 +25,7 @@ export type UserFormData = {
     feeType: "Registration" | "Accomodation",
     teamName: string,
     isTeamLeader: boolean, // For team events, only leader fills details
+    aadhaarNumber: string,
 }
 
 // Step 2: Parent/Guardian Details (required for minors/school students)

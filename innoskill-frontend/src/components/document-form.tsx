@@ -266,73 +266,59 @@ export default function DocumentForm({
                     </div>
                 </div>
 
+                {/* Section Header - Identity Documents */}
+                <div className="flex items-center gap-3 mt-2">
+                    <div className="p-2 bg-red-100 rounded-xl flex-shrink-0">
+                        <IdCard className="w-4 h-4 text-red-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800">Identity Verification</h3>
+                </div>
+
+                {/* Aadhaar Upload */}
+                <UploadCard
+                    title="Aadhaar Card"
+                    description="Upload your Aadhaar card (front side) for identity verification"
+                    icon={IdCard}
+                    file={aadhaarPhoto}
+                    preview={aadhaarPhotoPreview}
+                    required={true}
+                    onUpload={(file, preview) => updateFields({ aadhaarPhoto: file, aadhaarPhotoPreview: preview })}
+                    onRemove={() => updateFields({ aadhaarPhoto: null, aadhaarPhotoPreview: "" })}
+                />
+
                 {/* Section Header - Bank Documents */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mt-4">
                     <div className="p-2 bg-orange-100 rounded-xl flex-shrink-0">
                         <CreditCard className="w-4 h-4 text-orange-600" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800">Bank Verification Documents</h3>
+                    <h3 className="text-sm font-bold text-slate-800">Bank Verification (Any One Required)</h3>
                 </div>
 
-                {/* Cancelled Cheque */}
-                <UploadCard
-                    title="Cancelled Cheque"
-                    description="Upload a clear image of your cancelled cheque showing account details"
-                    icon={CreditCard}
-                    file={cancelledCheque}
-                    preview={cancelledChequePreview}
-                    required={true}
-                    onUpload={(file, preview) => updateFields({ cancelledCheque: file, cancelledChequePreview: preview })}
-                    onRemove={() => updateFields({ cancelledCheque: null, cancelledChequePreview: "" })}
-                />
+                <div className="grid grid-cols-1 gap-4">
+                    {/* Cancelled Cheque */}
+                    <UploadCard
+                        title="Cancelled Cheque"
+                        description="Upload a clear image of your cancelled cheque showing account details"
+                        icon={CreditCard}
+                        file={cancelledCheque}
+                        preview={cancelledChequePreview}
+                        required={false}
+                        onUpload={(file, preview) => updateFields({ cancelledCheque: file, cancelledChequePreview: preview })}
+                        onRemove={() => updateFields({ cancelledCheque: null, cancelledChequePreview: "" })}
+                    />
 
-                {/* Passbook Photo */}
-                <UploadCard
-                    title="Passbook Front Page"
-                    description="Upload the first page of your passbook showing account holder name and number"
-                    icon={BookOpen}
-                    file={passbookPhoto}
-                    preview={passbookPhotoPreview}
-                    required={true}
-                    onUpload={(file, preview) => updateFields({ passbookPhoto: file, passbookPhotoPreview: preview })}
-                    onRemove={() => updateFields({ passbookPhoto: null, passbookPhotoPreview: "" })}
-                />
-
-                {/* Aadhaar Section for Minors */}
-                {isMinor && (
-                    <>
-                        {/* Section Header - Identity Documents */}
-                        <div className="flex items-center gap-3 mt-2">
-                            <div className="p-2 bg-red-100 rounded-xl flex-shrink-0">
-                                <IdCard className="w-4 h-4 text-red-600" />
-                            </div>
-                            <h3 className="text-sm font-bold text-slate-800">Identity Verification</h3>
-                        </div>
-
-                        {/* Minor Notice */}
-                        <div className="info-card-amber">
-                            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-sm font-semibold text-amber-800">Required for Minor Participants</p>
-                                <p className="text-xs sm:text-sm text-amber-600 mt-1">
-                                    School participants must upload Aadhaar for guardian-account verification.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Aadhaar Upload */}
-                        <UploadCard
-                            title="Aadhaar Card"
-                            description="Upload your Aadhaar card (front side) for identity verification"
-                            icon={IdCard}
-                            file={aadhaarPhoto}
-                            preview={aadhaarPhotoPreview}
-                            required={true}
-                            onUpload={(file, preview) => updateFields({ aadhaarPhoto: file, aadhaarPhotoPreview: preview })}
-                            onRemove={() => updateFields({ aadhaarPhoto: null, aadhaarPhotoPreview: "" })}
-                        />
-                    </>
-                )}
+                    {/* Passbook Photo */}
+                    <UploadCard
+                        title="Passbook Front Page"
+                        description="Upload the first page of your passbook showing account holder name and number"
+                        icon={BookOpen}
+                        file={passbookPhoto}
+                        preview={passbookPhotoPreview}
+                        required={false}
+                        onUpload={(file, preview) => updateFields({ passbookPhoto: file, passbookPhotoPreview: preview })}
+                        onRemove={() => updateFields({ passbookPhoto: null, passbookPhotoPreview: "" })}
+                    />
+                </div>
 
                 {/* Tips Section */}
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">

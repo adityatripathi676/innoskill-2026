@@ -18,6 +18,7 @@ type UserFormData struct {
 	FeeType              string `json:"feeType" binding:"required"`
 	TeamName             string `json:"teamName" binding:"required"`
 	IsTeamLeader         bool   `json:"isTeamLeader"`
+	AadhaarNumber        string `json:"aadhaarNumber" binding:"required"`
 	ParentType           string `json:"parentType"`
 	ParentName           string `json:"parentName"`
 	ParentPhone          string `json:"parentPhone"`
