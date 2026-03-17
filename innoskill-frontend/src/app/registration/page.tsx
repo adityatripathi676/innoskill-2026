@@ -157,6 +157,12 @@ export default function RegistrationPage() {
     const age = calculateAge(data.dateOfBirth);
     const isMinor = age !== null ? age < 18 : data.scOrUni === "School";
 
+    // Detect if Techno-Vogue is selected to route to the right QR
+    const hasTechnoVogue = data.vertical7?.some(
+        (e) => e.eventName.startsWith("Techno- Vogue") && e.members !== null
+    ) ?? false;
+    const paymentInstitution = hasTechnoVogue ? "TECHNOVOGUE" : data.institutionName;
+
     const updateFields = (fields: Partial<FormData>) => {
         setData((prev) => ({ ...prev, ...fields }));
     };
@@ -220,12 +226,13 @@ export default function RegistrationPage() {
                 updateFields={updateFields}
                 prices={prices}
                 fromUni={fromUni}
+                institutionName={paymentInstitution}
                 key="payment"
             /> },
         );
 
         return configs;
-    }, [data, isMinor, prices, fromUni]);
+    }, [data, isMinor, prices, fromUni, paymentInstitution]);
 
     const formSteps = useMemo(() => stepConfigs.map(s => s.component), [stepConfigs]);
     const { currentStepIndex, step, FirstStep, LastStep, back, next, isTransitioning, direction } = useMultiForm(formSteps);

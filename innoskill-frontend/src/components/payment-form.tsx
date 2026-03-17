@@ -9,6 +9,7 @@ import { PaymentFormData } from "@/types";
 type PaymentFormProps = PaymentFormData & {
     prices: number,
     fromUni: boolean,
+    institutionName: string,
     updateFields: (fields: Partial<PaymentFormData>) => void
 }
 
@@ -19,8 +20,10 @@ export function PaymentForm({
     paymentReceiptPreview,
     prices,
     fromUni,
+    institutionName,
     updateFields
 }: PaymentFormProps) {
+    const [qrModalOpen, setQrModalOpen] = useState(false);
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [showPreview, setShowPreview] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,10 +41,32 @@ export function PaymentForm({
         setTimeout(() => setCopiedField(null), 2000);
     };
 
-    // TODO: Update UPI payment links before re-enabling the UPI payment option
-    const upiLink = fromUni 
-        ? "YOUR_UNI_UPI_LINK_HERE"
-        : "YOUR_EXTERNAL_UPI_LINK_HERE";
+    // Determine payment URL based on institution selection
+    const getPaymentInfo = (): { url: string; label: string; color: string } => {
+        const name = (institutionName || "").toUpperCase().trim();
+        if (name === "TECHNOVOGUE") {
+            return {
+                url: "https://p.ppsl.io/PYTMPS/1k3zfk",
+                label: "TECHNOVOGUE",
+                color: "from-violet-500 to-purple-600"
+            };
+        }
+        if (name === "OTHERS") {
+            return {
+                url: "https://p.ppsl.io/PYTMPS/6M3zfk",
+                label: "Other Institutions",
+                color: "from-blue-500 to-cyan-600"
+            };
+        }
+        // Default: MRIS, MRIIRS, MRU
+        return {
+            url: "https://p.ppsl.io/PYTMPS/5F3zfk",
+            label: "MRIS / MRIIRS / MRU",
+            color: "from-orange-500 to-red-500"
+        };
+    };
+
+    const paymentInfo = getPaymentInfo();
 
     const getDataUrlMime = (value: string) => {
         const match = value.match(/^data:([^;]+);/);
@@ -101,8 +126,8 @@ export function PaymentForm({
     const isReceiptPdf = receiptMime === "application/pdf";
 
     return (
-        <FormWrapper 
-            title="Complete Payment" 
+        <FormWrapper
+            title="Complete Payment"
             subtitle="Enter payment details"
         >
             <div className="w-full space-y-4 overflow-visible">
@@ -137,38 +162,30 @@ export function PaymentForm({
 
                 {!isPaid && (
                     <>
-                        {/* Payment Methods */}
-                        <div className="space-y-3">
-                            {/* UPI Payment Option - Hidden until URLs are updated */}
-                        {false && (
-                                <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300 overflow-visible">
-                                <div className="flex flex-wrap items-start gap-2 sm:gap-3 mb-4">
-                                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex-shrink-0">
-                                        <QrCode className="w-5 h-5 text-white" />
+                        <div className="space-y-4">
+                            {/* UPI Payment Option */}
+                            <div className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden group hover:border-violet-200 transition-all duration-300">
+                                <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4">
+                                    <div className={`p-4 bg-gradient-to-br ${paymentInfo.color} rounded-2xl shadow-lg shadow-violet-500/10 transition-transform group-hover:scale-110`}>
+                                        <QrCode className="w-6 h-6 text-white" />
                                     </div>
-                                    <div className="flex-1 min-w-[120px]">
-                                        <h3 className="font-bold text-sm sm:text-base text-slate-800">UPI Payment</h3>
-                                        <p className="text-xs text-slate-500">Quick & Secure</p>
+                                    <div className="flex-1 text-center sm:text-left">
+                                        <h3 className="font-black text-slate-800 text-lg uppercase tracking-tight">UPI / QR Payment</h3>
+                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Recommended & Fastest Way</p>
                                     </div>
-                                    <span className="flex-shrink-0 px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] sm:text-xs font-semibold rounded-full shadow-sm">
-                                        Recommended
-                                    </span>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setQrModalOpen(true)}
+                                        className={`w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r ${paymentInfo.color} text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:shadow-violet-500/40 hover:scale-105 active:scale-95 transition-all duration-300 uppercase`}
+                                    >
+                                        Generate QR Code
+                                    </button>
                                 </div>
-                                <a 
-                                    href={upiLink} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
-                                >
-                                    <span className="text-sm sm:text-base">Pay ₹{prices} with UPI</span>
-                                    <ExternalLink className="w-4 h-4" />
-                                </a>
-                                <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-slate-400">
-                                    <ShieldCheck className="w-3.5 h-3.5" />
-                                    <span>Secured by PayTM Payment Gateway</span>
+                                <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-2">
+                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Secured by PayTM Merchant Services</span>
                                 </div>
                             </div>
-                        )}
 
                             {/* Bank Transfer Option */}
                             <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300">
@@ -181,7 +198,7 @@ export function PaymentForm({
                                         <p className="text-xs text-slate-500">NEFT / IMPS / RTGS</p>
                                     </div>
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                     {Object.entries({
                                         "Bank Name": bankDetails.bankName,
@@ -233,13 +250,13 @@ export function PaymentForm({
                                 Transaction ID / UTR / Ref No.
                                 {!isPaid && <span className="text-red-500 ml-0.5">*</span>}
                             </label>
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 placeholder={isPaid ? "No payment required" : "Enter Transaction ID / UPI Ref No."}
-                                className="form-input text-sm sm:text-base" 
+                                className="form-input text-sm sm:text-base"
                                 disabled={isPaid}
-                                value={transactionID} 
-                                onChange={(e) => updateFields({ transactionID: e.target.value })} 
+                                value={transactionID}
+                                onChange={(e) => updateFields({ transactionID: e.target.value })}
                             />
                         </div>
 
@@ -250,13 +267,13 @@ export function PaymentForm({
                                 Transaction Date
                                 {!isPaid && <span className="text-red-500 ml-0.5">*</span>}
                             </label>
-                            <input 
-                                type="date" 
-                                className="form-input text-sm sm:text-base" 
+                            <input
+                                type="date"
+                                className="form-input text-sm sm:text-base"
                                 disabled={isPaid}
-                                value={transactionDate} 
+                                value={transactionDate}
                                 max={new Date().toISOString().split('T')[0]}
-                                onChange={(e) => updateFields({ transactionDate: e.target.value })} 
+                                onChange={(e) => updateFields({ transactionDate: e.target.value })}
                             />
                         </div>
 
@@ -268,7 +285,7 @@ export function PaymentForm({
                                     Payment Screenshot / Receipt
                                     <span className="text-red-500 ml-0.5">*</span>
                                 </label>
-                                
+
                                 <input
                                     ref={fileInputRef}
                                     type="file"
@@ -365,6 +382,60 @@ export function PaymentForm({
                                 height={400}
                                 className="w-full h-auto rounded-lg object-contain max-h-[60vh]"
                             />
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* QR Code Modal */}
+            {qrModalOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setQrModalOpen(false)} />
+                    <div className="relative bg-white rounded-[2.5rem] shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className={`p-6 bg-gradient-to-r ${paymentInfo.color} text-white flex items-center justify-between`}>
+                            <div className="flex items-center gap-3">
+                                <QrCode className="w-6 h-6" />
+                                <span className="font-black text-sm uppercase tracking-widest">Complete Payment</span>
+                            </div>
+                            <button onClick={() => setQrModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-10 flex flex-col items-center">
+                            <div className="relative group">
+                                <div className={`absolute -inset-4 bg-gradient-to-r ${paymentInfo.color} opacity-20 blur-2xl`} />
+                                <div className="relative p-4 bg-white rounded-3xl border-4 border-slate-50 shadow-2xl">
+                                    <img
+                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentInfo.url)}&margin=10`}
+                                        alt="Payment QR"
+                                        className="w-56 h-56 sm:w-64 sm:h-64 object-contain rounded-xl"
+                                    />
+                                    <div className={`absolute -bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-gradient-to-r ${paymentInfo.color} text-white text-[10px] font-black rounded-full shadow-xl border-4 border-white whitespace-nowrap uppercase tracking-widest`}>
+                                        Scan and Pay ₹{prices}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-12 space-y-4 text-center">
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">Merchant: {paymentInfo.label}</p>
+                                <div className="h-1 w-12 bg-slate-100 rounded-full mx-auto" />
+                                <p className="text-xs text-slate-500 font-medium leading-relaxed px-4">
+                                    Open any UPI App on your phone and scan the code above to pay.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-slate-50 p-6 border-t border-slate-100 flex flex-col gap-3">
+                            <div className="flex items-center justify-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
+                                <ShieldCheck className="w-4 h-4" />
+                                100% Encrypted & Secure
+                            </div>
+                            <button 
+                                onClick={() => setQrModalOpen(false)}
+                                className="w-full py-4 bg-slate-800 text-white font-black text-xs rounded-2xl uppercase tracking-widest hover:bg-slate-900 transition-colors"
+                            >
+                                I have paid
+                            </button>
                         </div>
                     </div>
                 </div>

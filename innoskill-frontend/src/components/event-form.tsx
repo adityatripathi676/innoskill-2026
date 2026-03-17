@@ -33,44 +33,82 @@ const verticalInfo: Record<VerticalKey, { title: string; shortTitle: string; sub
 };
 
 // Payment Modal
-function PaymentModal({ isOpen, onClose, fromUni, totalPrice }: { isOpen: boolean; onClose: () => void; fromUni: boolean; totalPrice: number }) {
+function PaymentModal({ isOpen, onClose, fromUni, totalPrice, institutionName, hasTechnoVogue }: { isOpen: boolean; onClose: () => void; fromUni: boolean; totalPrice: number; institutionName: string; hasTechnoVogue: boolean }) {
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const bankDetails = { bankName: "Axis Bank", accountName: "MANAV RACHNA INTERNATIONAL INSTITUTE OF RESEARCH AND STUDIES GST", accountNo: "924020046485383", ifscCode: "UTIB0002693" };
     const copyToClipboard = (text: string, field: string) => { navigator.clipboard.writeText(text); setCopiedField(field); setTimeout(() => setCopiedField(null), 2000); };
-    // TODO: Update UPI payment links before re-enabling the UPI payment option
-    const upiLink = fromUni ? "YOUR_UNI_UPI_LINK_HERE" : "YOUR_EXTERNAL_UPI_LINK_HERE";
+    
+    const getPaymentInfo = (): { url: string; label: string; color: string } => {
+        const name = (hasTechnoVogue ? "TECHNOVOGUE" : institutionName || "").toUpperCase().trim();
+        if (name === "TECHNOVOGUE") return { url: "https://p.ppsl.io/PYTMPS/1k3zfk", label: "TECHNOVOGUE", color: "from-violet-500 to-purple-600" };
+        if (name === "OTHERS") return { url: "https://p.ppsl.io/PYTMPS/6M3zfk", label: "Other Institutions", color: "from-blue-500 to-cyan-600" };
+        return { url: "https://p.ppsl.io/PYTMPS/5F3zfk", label: "MRIS / MRIIRS / MRU", color: "from-orange-500 to-red-500" };
+    };
+
+    const paymentInfo = getPaymentInfo();
+    
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-3 sm:p-4">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
+            <div className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl"><CreditCard className="w-5 h-5 text-white" /></div>
-                        <div><h3 className="font-bold text-slate-800">Payment Options</h3><p className="text-xs text-slate-500">Amount: ₹{totalPrice}</p></div>
+                        <div className={`p-2 bg-gradient-to-br ${paymentInfo.color} rounded-xl shadow-lg shadow-orange-500/10`}><CreditCard className="w-5 h-5 text-white" /></div>
+                        <div><h3 className="font-bold text-slate-800 tracking-tight">Payment Options</h3><p className="text-xs font-semibold text-slate-500">Amount: ₹{totalPrice}</p></div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
                 </div>
-                <div className="p-6 space-y-4">
-                    {/* UPI Payment Option - Hidden until URLs are updated */}
-                    {false && (
-                        <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200">
-                            <div className="flex items-center gap-3 mb-3"><QrCode className="w-5 h-5 text-violet-600" /><span className="font-bold text-violet-800">UPI Payment</span><span className="ml-auto text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full font-medium">Recommended</span></div>
-                            <button onClick={() => window.open(upiLink, '_blank')} className="w-full py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-2"><span>Pay ₹{totalPrice} via UPI</span><ExternalLink className="w-4 h-4" /></button>
+                
+                <div className="p-6 space-y-6">
+                    {/* QR Code Section */}
+                    <div className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden">
+                        <div className="bg-slate-50/50 p-4 border-b border-slate-100 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <QrCode className={`w-4 h-4 text-slate-400`} />
+                                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest">Scan to Pay</span>
+                            </div>
+                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">RECOMMENDED</span>
                         </div>
-                    )}
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
-                        <div className="flex items-center gap-3 mb-3"><Building2 className="w-5 h-5 text-blue-600" /><span className="font-bold text-blue-800">Bank Transfer</span></div>
-                        <div className="space-y-2">
+                        
+                        <div className="p-8 flex flex-col items-center justify-center">
+                            <div className="relative group p-4 border-2 border-slate-100 rounded-3xl shadow-inner bg-slate-50/30">
+                                <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentInfo.url)}&margin=10`}
+                                    alt="UPI QR Code"
+                                    className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-xl"
+                                />
+                                <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r ${paymentInfo.color} text-white text-[10px] font-bold rounded-full shadow-lg border-2 border-white whitespace-nowrap`}>
+                                    SCAN WITH ANY UPI APP
+                                </div>
+                            </div>
+                            <p className="mt-8 text-[11px] text-slate-400 font-medium text-center uppercase tracking-widest leading-relaxed">
+                                {paymentInfo.label}<br/>Secured by PayTM
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100" /></div>
+                        <div className="relative flex justify-center text-xs uppercase tracking-widest font-black text-slate-300"><span className="bg-white px-4">OR</span></div>
+                    </div>
+
+                    <div className="p-5 bg-gradient-to-br from-blue-50/80 to-cyan-50/80 rounded-2xl border-2 border-blue-100 shadow-sm hover:border-blue-200 transition-all duration-300">
+                        <div className="flex items-center gap-3 mb-4"><div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg shadow-blue-500/20"><Building2 className="w-5 h-5 text-white" /></div><span className="font-bold text-blue-900 tracking-tight">Bank Transfer</span></div>
+                        <div className="space-y-2.5">
                             {Object.entries({ "Bank Name": bankDetails.bankName, "Account Name": bankDetails.accountName, "Account No": bankDetails.accountNo, "IFSC Code": bankDetails.ifscCode }).map(([label, value]) => (
-                                <div key={label} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                                    <div className="flex-1 min-w-0"><p className="text-xs text-slate-400">{label}</p><p className="text-sm font-medium text-slate-700 truncate">{value}</p></div>
-                                    <button type="button" onClick={() => copyToClipboard(value, label)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">{copiedField === label ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-slate-400" />}</button>
+                                <div key={label} className="flex items-center gap-3 p-3 bg-white/60 hover:bg-white rounded-xl transition-all border border-transparent hover:border-blue-100">
+                                    <div className="flex-1 min-w-0"><p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">{label}</p><p className="text-sm font-semibold text-slate-700 truncate tracking-tight">{value}</p></div>
+                                    <button type="button" onClick={() => copyToClipboard(value, label)} className="p-2 hover:bg-blue-50 rounded-lg transition-colors group">{copiedField === label ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />}</button>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <p className="text-xs text-slate-500 text-center">After payment, enter your Transaction ID in the next step to confirm registration.</p>
+                    
+                    <div className="bg-amber-50 p-4 rounded-xl border-2 border-amber-100/50 flex items-start gap-3">
+                        <Info className="w-4 h-4 text-amber-600 mt-0.5" />
+                        <p className="text-[11px] text-amber-700 font-semibold leading-relaxed">Ensure to take a screenshot of your payment confirmation. You will need to upload it in the final step to finalize your registration.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -173,6 +211,7 @@ export default function EventForm({
     const [expandedVertical, setExpandedVertical] = useState<VerticalKey | null>(null);
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [cartOpen, setCartOpen] = useState(false);
+    const [technoVogueConflict, setTechnoVogueConflict] = useState<string | null>(null);
 
     const [verticals, setVerticals] = useState({
         v1: vertical1, v2: vertical2, v3: vertical3, v4: vertical4,
@@ -201,6 +240,14 @@ export default function EventForm({
         return total;
     };
 
+    // Check if Techno-Vogue is currently selected
+    const isTechnoVogueSelected = verticals.v7.some(e => e.eventName.startsWith("Techno- Vogue") && e.members !== null);
+
+    // Check if any non-Techno-Vogue events are selected
+    const hasOtherEventsSelected = Object.entries(verticals).some(([key, events]) =>
+        events.some(e => !e.eventName.startsWith("Techno- Vogue") && e.members !== null)
+    );
+
     const getAllSelectedEvents = () => {
         const selected: { eventName: string; members: string; price: number; free: boolean; verticalKey: VerticalKey }[] = [];
         (Object.keys(verticals) as VerticalKey[]).forEach(key =>
@@ -222,9 +269,38 @@ export default function EventForm({
     const handleCheckboxChange = (vk: VerticalKey, idx: number) => {
         const updated = { ...verticals };
         const data = [...updated[vk]];
-        if (data[idx].members === null) {
+        const eventName = data[idx].eventName;
+        const isTechnoVogue = eventName.startsWith("Techno- Vogue");
+        const isCurrentlySelected = data[idx].members !== null;
+
+        setTechnoVogueConflict(null);
+
+        if (!isCurrentlySelected) {
+            // Trying to SELECT this event
+            if (isTechnoVogue && hasOtherEventsSelected) {
+                // Techno-Vogue selected while other events exist → clear all others, add Techno-Vogue
+                const clearedVerticals: typeof verticals = {} as typeof verticals;
+                (Object.keys(updated) as VerticalKey[]).forEach(key => {
+                    clearedVerticals[key] = updated[key].map(e => ({ ...e, members: null, price: 0 }));
+                });
+                // Now select Techno-Vogue
+                const tvData = [...clearedVerticals[vk]];
+                tvData[idx].members = "1";
+                tvData[idx].price = calculatePriceForEvent("1", eventName);
+                clearedVerticals[vk] = tvData;
+                setVerticals(clearedVerticals);
+                (Object.keys(clearedVerticals) as VerticalKey[]).forEach(key => {
+                    updateFields({ [getOriginalVerticalKey(key)]: clearedVerticals[key] });
+                });
+                setTechnoVogueConflict("Other events have been cleared. Techno-Vogue requires a separate registration.");
+                return;
+            } else if (!isTechnoVogue && isTechnoVogueSelected) {
+                // Trying to select a regular event while Techno-Vogue is active → block it
+                setTechnoVogueConflict("Techno-Vogue requires a separate registration. Deselect it first to register for other events, or submit this form for Techno-Vogue.");
+                return;
+            }
             data[idx].members = "1";
-            data[idx].price = data[idx].free ? 0 : calculatePriceForEvent("1", data[idx].eventName);
+            data[idx].price = data[idx].free ? 0 : calculatePriceForEvent("1", eventName);
         } else {
             data[idx].members = null;
             data[idx].price = 0;
@@ -273,6 +349,25 @@ export default function EventForm({
                         )}
                     </button>
                 </div>
+
+                {/* Techno-Vogue Active Banner */}
+                {isTechnoVogueSelected && (
+                    <div className="mt-3 p-3 bg-gradient-to-r from-violet-50 to-purple-50 border-2 border-violet-200 rounded-xl flex items-start gap-2">
+                        <Info className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <p className="text-xs font-bold text-violet-800">Techno-Vogue Mode Active</p>
+                            <p className="text-xs text-violet-600 mt-0.5">You are registering for Techno-Vogue only. This event has a separate fee structure and QR code. To register for other events, please deselect Techno-Vogue and submit a new registration.</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Conflict Warning */}
+                {technoVogueConflict && (
+                    <div className="mt-3 p-3 bg-amber-50 border-2 border-amber-300 rounded-xl flex items-start gap-2">
+                        <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-amber-700 font-medium">{technoVogueConflict}</p>
+                    </div>
+                )}
             </div>
 
             {/* Vertical Grid */}
@@ -420,7 +515,14 @@ export default function EventForm({
             />
 
             {/* Payment Modal */}
-            <PaymentModal isOpen={paymentModalOpen} onClose={() => setPaymentModalOpen(false)} fromUni={fromUni} totalPrice={price} />
+            <PaymentModal 
+                isOpen={paymentModalOpen} 
+                onClose={() => setPaymentModalOpen(false)} 
+                fromUni={fromUni} 
+                totalPrice={price} 
+                institutionName={institutionName}
+                hasTechnoVogue={isTechnoVogueSelected}
+            />
         </div>
     );
 }

@@ -183,33 +183,53 @@ export default function UserForm({
     const cityOptions = useMemo(() => STATE_CITIES_MAP[state] ?? [], [state]);
 
     useEffect(() => {
-        let cancelled = false;
+        if (pinCode.length !== 6) return;
 
-        async function autofillByPin() {
-            if (pinCode.length !== 6) return;
-            setPinLoading(true);
+        const controller = new AbortController();
+        let debounceTimer: ReturnType<typeof setTimeout>;
+        let loadingTimer: ReturnType<typeof setTimeout>;
+        let timeoutId: ReturnType<typeof setTimeout>;
+
+        debounceTimer = setTimeout(async () => {
+            // Only show loading if it takes more than 300ms
+            loadingTimer = setTimeout(() => setPinLoading(true), 300);
+
             try {
-                const res = await fetch(`https://api.postalpincode.in/pincode/${pinCode}`);
+                // Set a 5-second timeout to abort the request
+                timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                const res = await fetch(`https://api.postalpincode.in/pincode/${pinCode}`, {
+                    signal: controller.signal
+                });
+
+                if (!res.ok) throw new Error("Fetch failed");
                 const json = await res.json();
+                
                 const office = json?.[0]?.PostOffice?.[0];
-                if (!cancelled && office) {
+                if (office) {
                     updateFields({
                         state: office.State || state,
                         city: office.District || office.Name || city,
                     });
                 }
-            } catch {
-                // Keep manual entries when API fails.
+            } catch (err) {
+                // Silently fail, let user fill manually
+                console.log("Pincode fetch failed or timed out:", err);
             } finally {
-                if (!cancelled) setPinLoading(false);
+                clearTimeout(loadingTimer);
+                clearTimeout(timeoutId);
+                setPinLoading(false);
             }
-        }
+        }, 500);
 
-        autofillByPin();
         return () => {
-            cancelled = true;
+            clearTimeout(debounceTimer);
+            clearTimeout(loadingTimer);
+            clearTimeout(timeoutId);
+            controller.abort();
+            setPinLoading(false);
         };
-    }, [pinCode]);
+    }, [pinCode, updateFields]);
 
     return (
         <FormWrapper title="Personal Details" subtitle="Enter required details">
