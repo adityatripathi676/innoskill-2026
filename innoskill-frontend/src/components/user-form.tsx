@@ -186,17 +186,13 @@ export default function UserForm({
         if (pinCode.length !== 6) return;
 
         const controller = new AbortController();
-        let debounceTimer: ReturnType<typeof setTimeout>;
-        let loadingTimer: ReturnType<typeof setTimeout>;
-        let timeoutId: ReturnType<typeof setTimeout>;
-
-        debounceTimer = setTimeout(async () => {
+        const debounceTimer = setTimeout(async () => {
             // Only show loading if it takes more than 300ms
-            loadingTimer = setTimeout(() => setPinLoading(true), 300);
+            const loadingTimer = setTimeout(() => setPinLoading(true), 300);
 
             try {
                 // Set a 5-second timeout to abort the request
-                timeoutId = setTimeout(() => controller.abort(), 5000);
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
 
                 const res = await fetch(`https://api.postalpincode.in/pincode/${pinCode}`, {
                     signal: controller.signal
@@ -212,24 +208,22 @@ export default function UserForm({
                         city: office.District || office.Name || city,
                     });
                 }
+                clearTimeout(timeoutId);
             } catch (err) {
                 // Silently fail, let user fill manually
                 console.log("Pincode fetch failed or timed out:", err);
             } finally {
                 clearTimeout(loadingTimer);
-                clearTimeout(timeoutId);
                 setPinLoading(false);
             }
         }, 500);
 
         return () => {
             clearTimeout(debounceTimer);
-            clearTimeout(loadingTimer);
-            clearTimeout(timeoutId);
             controller.abort();
             setPinLoading(false);
         };
-    }, [pinCode, updateFields]);
+    }, [pinCode, updateFields, city, state]);
 
     return (
         <FormWrapper title="Personal Details" subtitle="Enter required details">
