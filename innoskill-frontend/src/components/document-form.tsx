@@ -36,7 +36,6 @@ const isBlockedExtension = (filename: string) => {
 
 const isAllowedExtension = (filename: string) => {
     const lower = filename.toLowerCase();
-    if (lower.endsWith(".pdf")) return true;
     return (
         lower.endsWith(".jpg") ||
         lower.endsWith(".jpeg") ||
@@ -58,7 +57,7 @@ function UploadCard({
     required,
     onUpload,
     onRemove,
-    acceptedTypes = "image/*,application/pdf",
+    acceptedTypes = "image/*",
     maxSizeLabel = "Max 5MB"
 }: UploadCardProps) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -79,11 +78,10 @@ function UploadCard({
         }
 
         const isImage = type.startsWith("image/");
-        const isPdf = type === "application/pdf";
         const hasAllowedExt = type === "" ? isAllowedExtension(selectedFile.name) : false;
 
-        if (!isImage && !isPdf && !hasAllowedExt) {
-            alert("Only image or PDF files are allowed");
+        if (!isImage && !hasAllowedExt) {
+            alert("Only image files are allowed");
             return;
         }
 
@@ -126,7 +124,7 @@ function UploadCard({
 
     const isUploaded = !!preview;
     const previewMime = preview ? getDataUrlMime(preview) : "";
-    const isPdf = previewMime === "application/pdf";
+    const isPdf = false; // PDFs disallowed
 
     return (
         <>
@@ -273,7 +271,7 @@ export default function DocumentForm({
                     <div>
                         <p className="text-sm font-semibold text-blue-800">Document Requirements</p>
                         <p className="text-xs sm:text-sm text-blue-600 mt-1">
-                            Upload clear JPG, PNG, or PDF files (max 5MB each).
+                            Upload clear JPG, PNG, or WebP files (max 5MB each).
                         </p>
                     </div>
                 </div>

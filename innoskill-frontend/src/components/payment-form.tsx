@@ -80,7 +80,6 @@ export function PaymentForm({
 
     const isAllowedExtension = (filename: string) => {
         const lower = filename.toLowerCase();
-        if (lower.endsWith(".pdf")) return true;
         return (
             lower.endsWith(".jpg") ||
             lower.endsWith(".jpeg") ||
@@ -105,11 +104,10 @@ export function PaymentForm({
         }
 
         const isImage = type.startsWith("image/");
-        const isPdf = type === "application/pdf";
         const hasAllowedExt = type === "" ? isAllowedExtension(file.name) : false;
 
-        if (!isImage && !isPdf && !hasAllowedExt) {
-            alert("Only image or PDF files are allowed");
+        if (!isImage && !hasAllowedExt) {
+            alert("Only image files are allowed");
             return;
         }
 
@@ -133,7 +131,7 @@ export function PaymentForm({
     const isPaid = prices === 0;
     const isReceiptUploaded = !!paymentReceiptPreview;
     const receiptMime = paymentReceiptPreview ? getDataUrlMime(paymentReceiptPreview) : "";
-    const isReceiptPdf = receiptMime === "application/pdf";
+    const isReceiptPdf = false; // PDFs disallowed
 
     return (
         <FormWrapper
@@ -299,7 +297,7 @@ export function PaymentForm({
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept="image/*,application/pdf"
+                                    accept="image/*"
                                     className="hidden"
                                     onChange={(e) => {
                                         const file = e.target.files?.[0];
