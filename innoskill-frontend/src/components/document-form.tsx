@@ -65,7 +65,7 @@ function UploadCard({
     const [isDragging, setIsDragging] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
 
-    const handleFileSelect = (selectedFile: File) => {
+    const handleFileSelect = async (selectedFile: File) => {
         // Check file size (5MB max)
         if (selectedFile.size > 5 * 1024 * 1024) {
             alert("File size must be less than 5MB");
@@ -88,8 +88,20 @@ function UploadCard({
         }
 
         const reader = new FileReader();
-        reader.onloadend = () => {
-            onUpload(selectedFile, reader.result as string);
+        reader.onloadend = async () => {
+            let preview = reader.result as string;
+            
+            // Compress if it's an image to avoid "Payload Too Large" error
+            if (isImage) {
+                try {
+                    const { compressImage } = await import("@/utils/image-compression");
+                    preview = await compressImage(preview);
+                } catch (err) {
+                    console.error("Auto-compression failed", err);
+                }
+            }
+            
+            onUpload(selectedFile, preview);
         };
         reader.readAsDataURL(selectedFile);
     };

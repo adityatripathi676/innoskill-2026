@@ -93,7 +93,7 @@ export function PaymentForm({
         );
     };
 
-    const handleFileSelect = (file: File) => {
+    const handleFileSelect = async (file: File) => {
         if (file.size > 5 * 1024 * 1024) {
             alert("File size must be less than 5MB");
             return;
@@ -114,8 +114,18 @@ export function PaymentForm({
         }
 
         const reader = new FileReader();
-        reader.onloadend = () => {
-            updateFields({ paymentReceipt: file, paymentReceiptPreview: reader.result as string });
+        reader.onloadend = async () => {
+            let preview = reader.result as string;
+
+            if (isImage) {
+                try {
+                    const { compressImage } = await import("@/utils/image-compression");
+                    preview = await compressImage(preview);
+                } catch (err) {
+                    console.error("Payment image compression failed", err);
+                }
+            }
+            updateFields({ paymentReceipt: file, paymentReceiptPreview: preview });
         };
         reader.readAsDataURL(file);
     };
