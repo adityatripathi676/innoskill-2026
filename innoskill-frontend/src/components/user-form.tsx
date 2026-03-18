@@ -165,6 +165,7 @@ export default function UserForm({
     pinCode,
     teamName,
     aadhaarNumber,
+    isTeamLeader,
     updateFields
 }: UserFormDataProps) {
     const [pinLoading, setPinLoading] = useState(false);
@@ -350,6 +351,25 @@ export default function UserForm({
                         value={aadhaarNumber}
                         onChange={(e) => updateFields({ aadhaarNumber: e.target.value.replace(/\D/g, "").slice(0, 12) })}
                     />
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-orange-50/50 rounded-2xl border-2 border-orange-100 hover:border-orange-200 transition-all group">
+                    <div className="relative flex items-center">
+                        <input
+                            id="isTeamLeader"
+                            type="checkbox"
+                            className="peer w-5 h-5 opacity-0 absolute cursor-pointer z-10"
+                            checked={isTeamLeader}
+                            onChange={(e) => updateFields({ isTeamLeader: e.target.checked })}
+                        />
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${isTeamLeader ? "bg-orange-500 border-orange-500" : "border-slate-300 bg-white"}`}>
+                            {isTeamLeader && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                    </div>
+                    <label htmlFor="isTeamLeader" className="text-xs sm:text-sm font-semibold text-slate-700 cursor-pointer select-none flex-1">
+                        I confirm that I am the <span className="text-orange-600">Team Leader</span> and I am responsible for this registration
+                    </label>
+                    <UsersRound className={`w-4 h-4 transition-colors ${isTeamLeader ? "text-orange-500" : "text-slate-300"}`} />
                 </div>
 
                 <div className="flex items-center gap-3 mt-2">

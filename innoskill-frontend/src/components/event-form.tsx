@@ -190,7 +190,7 @@ function CartDrawer({
                     {/* Pricing info */}
                     <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 space-y-1">
                         <p className="font-semibold text-slate-600 mb-1">Pricing – {institutionName === "MRIS" ? "MRIS" : institutionName === "MRU" || institutionName === "MRIIRS" ? "MRIIRS/MRU" : "Other Institutions"}</p>
-                        {[["Individual", institutionName === "MRIS" ? 200 : institutionName === "MRU" || institutionName === "MRIIRS" ? 300 : 400], ["Group (3-5)", institutionName === "MRIS" ? 300 : institutionName === "MRU" || institutionName === "MRIIRS" ? 500 : 650], ["Group (6-10)", institutionName === "MRIS" ? 500 : institutionName === "MRU" || institutionName === "MRIIRS" ? 750 : 1000], ["Group (11-15)", institutionName === "MRIS" ? 750 : institutionName === "MRU" || institutionName === "MRIIRS" ? 1200 : 1500]].map(([label, amt]) => (
+                        {[["Individual", institutionName === "MRIS" ? 200 : institutionName === "MRU" || institutionName === "MRIIRS" ? 300 : 400], ["Group (2-5)", institutionName === "MRIS" ? 300 : institutionName === "MRU" || institutionName === "MRIIRS" ? 500 : 650], ["Group (6-10)", institutionName === "MRIS" ? 500 : institutionName === "MRU" || institutionName === "MRIIRS" ? 750 : 1000], ["Group (11-15)", institutionName === "MRIS" ? 750 : institutionName === "MRU" || institutionName === "MRIIRS" ? 1200 : 1500]].map(([label, amt]) => (
                             <div key={label as string} className="flex justify-between"><span>{label}</span><span className="font-medium text-slate-700">₹{amt}</span></div>
                         ))}
                     </div>
@@ -219,16 +219,16 @@ export default function EventForm({
     });
 
     const getFeeTier = () => {
-        if (institutionName === "MRIS") return { individual: 200, group3_5: 300, group6_10: 500, group11_15: 750, technoVogue: 1500 };
-        if (institutionName === "MRU" || institutionName === "MRIIRS") return { individual: 300, group3_5: 500, group6_10: 750, group11_15: 1200, technoVogue: 2500 };
-        return { individual: 400, group3_5: 650, group6_10: 1000, group11_15: 1500, technoVogue: 2500 };
+        if (institutionName === "MRIS") return { individual: 200, group2_5: 300, group6_10: 500, group11_15: 750, technoVogue: 1500 };
+        if (institutionName === "MRU" || institutionName === "MRIIRS") return { individual: 300, group2_5: 500, group6_10: 750, group11_15: 1200, technoVogue: 2500 };
+        return { individual: 400, group2_5: 650, group6_10: 1000, group11_15: 1500, technoVogue: 2500 };
     };
 
     const calculatePriceForEvent = (members: string, eventName: string) => {
         const fee = getFeeTier();
         if (eventName.startsWith("Techno- Vogue")) return fee.technoVogue;
         if (members === "1") return fee.individual;
-        if (members === "3-5") return fee.group3_5;
+        if (members === "2-5") return fee.group2_5;
         if (members === "6-10") return fee.group6_10;
         return fee.group11_15;
     };
@@ -446,7 +446,7 @@ export default function EventForm({
                                                     <div className="px-3 pb-3 pt-0 border-t border-white/60" onClick={e => e.stopPropagation()}>
                                                         <p className="text-[10px] text-slate-500 mb-2">Team Size</p>
                                                         <div className="flex gap-2 flex-wrap">
-                                                            {["1", "3-5", "6-10", "11-15"].map(size => (
+                                                            {["1", "2-5", "6-10", "11-15"].map(size => (
                                                                 <button
                                                                     key={size}
                                                                     type="button"

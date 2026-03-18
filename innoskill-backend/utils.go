@@ -151,3 +151,32 @@ func checkDuplicateAadhaarNumber(ctx context.Context, srv *sheets.Service, aadha
 
 	return false, nil
 }
+
+// checkDuplicateTeamName checks all vertical sheets for an existing team name
+func checkDuplicateTeamName(ctx context.Context, srv *sheets.Service, teamName string) (bool, error) {
+	// Skip check if team name is empty
+	if strings.TrimSpace(teamName) == "" {
+		return false, nil
+	}
+
+	// Team name is in column I (9th column)
+	for i := 1; i <= 8; i++ {
+		readRange := fmt.Sprintf("vertical%d!I:I", i)
+		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
+		if err != nil {
+			// If sheet doesn't exist or is empty, continue to next
+			continue
+		}
+
+		for _, row := range resp.Values {
+			if len(row) > 0 {
+				existingName, ok := row[0].(string)
+				if ok && strings.EqualFold(strings.TrimSpace(existingName), strings.TrimSpace(teamName)) {
+					return true, nil // Duplicate found
+				}
+			}
+		}
+	}
+
+	return false, nil // No duplicate found
+}

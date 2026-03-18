@@ -187,6 +187,24 @@ func main() {
 			return
 		}
 
+		// Check for duplicate team name
+		isTeamDuplicate, err := checkDuplicateTeamName(ctx, srv, formData.TeamName)
+		if err != nil {
+			fmt.Printf("failed to check duplicate team name: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			return
+		}
+		if isTeamDuplicate {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Team name already taken. Please enter a unique team name."})
+			return
+		}
+
+		// Verify registration is done by team leader
+		if !formData.IsTeamLeader {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Registration must be submitted by the team leader."})
+			return
+		}
+
 		driveSrv, err := createDriveService(ctx)
 		if err != nil {
 			fmt.Printf("failed to initialize drive service: %v\n", err)
