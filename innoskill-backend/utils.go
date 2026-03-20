@@ -15,9 +15,9 @@ func checkDuplicateTransactionID(ctx context.Context, srv *sheets.Service, trans
 		return false, nil
 	}
 
-	// Transaction ID is in column K (11th column)
+	// Transaction ID is in column J (10th column)
 	for i := 1; i <= 8; i++ {
-		readRange := fmt.Sprintf("vertical%d!K:K", i)
+		readRange := fmt.Sprintf("vertical%d!J:J", i)
 		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			// If sheet doesn't exist or is empty, continue to next
@@ -39,9 +39,9 @@ func checkDuplicateTransactionID(ctx context.Context, srv *sheets.Service, trans
 
 // checkDuplicatePhoneNumber checks all vertical sheets for an existing phone number
 func checkDuplicatePhoneNumber(ctx context.Context, srv *sheets.Service, phoneNumber string) (bool, error) {
-	// Phone number is in column G (7th column)
+	// Phone number is in column F (6th column)
 	for i := 1; i <= 8; i++ {
-		readRange := fmt.Sprintf("vertical%d!G:G", i)
+		readRange := fmt.Sprintf("vertical%d!F:F", i)
 		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			// If sheet doesn't exist or is empty, continue to next
@@ -67,6 +67,7 @@ func appendToSheet(
 	verticals []Vertical,
 	baseRow []interface{},
 	sheetIndex string,
+	aadhaar string,
 ) error {
 
 	if len(verticals) == 0 {
@@ -77,7 +78,15 @@ func appendToSheet(
 	for _, v := range verticals {
 		if v.Members != nil {
 			row := append([]interface{}{}, baseRow...) // copy baseRow so we dont modify original
-			row = append(row, v.EventName, *v.Members, v.Price, v.Free, v.Closed)
+			row = append(row,
+				v.EventName,            // 44. Event Name
+				*v.Members,             // 45. Team Members
+				v.Price,               // 46. Event Price
+				boolToYesNo(v.Free),    // 47. Is Event Free
+				boolToYesNo(v.Closed),  // 48. Is Event Closed
+				boolToYesNo(v.Closed),  // 49. Is Event Closed (Repeated as requested)
+				aadhaar,                // 50. Participant Aadhaar (Hidden at end for duplicate check)
+			)
 			rows = append(rows, row)
 		}
 	}
@@ -129,11 +138,11 @@ func getClosedEvents(ctx context.Context, srv *sheets.Service) ([]string, error)
 	return closedEvents, nil
 }
 
-// checkDuplicateAadhaarNumber checks all vertical sheets for an existing Aadhaar number
+// checkDuplicateAadhaarNumber checks all vertical sheets for an existing Aadhaar number in column AX (50th)
 func checkDuplicateAadhaarNumber(ctx context.Context, srv *sheets.Service, aadhaar string) (bool, error) {
-	// Aadhaar is in column F (6th column)
+	// Aadhaar is in column AX (50th column)
 	for i := 1; i <= 8; i++ {
-		readRange := fmt.Sprintf("vertical%d!F:F", i)
+		readRange := fmt.Sprintf("vertical%d!AX:AX", i)
 		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			continue
@@ -159,9 +168,9 @@ func checkDuplicateTeamName(ctx context.Context, srv *sheets.Service, teamName s
 		return false, nil
 	}
 
-	// Team name is in column I (9th column)
+	// Team name is in column H (8th column)
 	for i := 1; i <= 8; i++ {
-		readRange := fmt.Sprintf("vertical%d!I:I", i)
+		readRange := fmt.Sprintf("vertical%d!H:H", i)
 		resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Context(ctx).Do()
 		if err != nil {
 			// If sheet doesn't exist or is empty, continue to next

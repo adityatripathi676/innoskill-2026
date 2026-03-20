@@ -147,7 +147,7 @@ func main() {
 			srv, err = sheets.NewService(ctx, option.WithCredentialsFile("secrets.json"))
 		}
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 
@@ -155,7 +155,7 @@ func main() {
 		isDuplicate, err := checkDuplicateTransactionID(ctx, srv, formData.TransactionID)
 		if err != nil {
 			fmt.Printf("failed to check duplicate transaction ID: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 		if isDuplicate {
@@ -167,7 +167,7 @@ func main() {
 		isPhoneDuplicate, err := checkDuplicatePhoneNumber(ctx, srv, formData.PhoneNumber)
 		if err != nil {
 			fmt.Printf("failed to check duplicate phone number: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 		if isPhoneDuplicate {
@@ -179,7 +179,7 @@ func main() {
 		isAadhaarDuplicate, err := checkDuplicateAadhaarNumber(ctx, srv, formData.AadhaarNumber)
 		if err != nil {
 			fmt.Printf("failed to check duplicate Aadhaar number: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 		if isAadhaarDuplicate {
@@ -191,7 +191,7 @@ func main() {
 		isTeamDuplicate, err := checkDuplicateTeamName(ctx, srv, formData.TeamName)
 		if err != nil {
 			fmt.Printf("failed to check duplicate team name: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 		if isTeamDuplicate {
@@ -208,14 +208,14 @@ func main() {
 		driveSrv, err := createDriveService(ctx)
 		if err != nil {
 			fmt.Printf("failed to initialize drive service: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 
 		uploadedPhotoURLs, err := uploadParticipantPhotos(ctx, driveSrv, formData)
 		if err != nil {
 			fmt.Printf("failed to upload participant photos: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 
@@ -248,22 +248,50 @@ func main() {
 			},
 		})
 
-		baseRow := []interface{}{ // this is like any in ts
-			formData.Name, formData.ScOrUni, resolvedInstitutionName(formData), formData.IntOrExt, formData.Roll, formData.AadhaarNumber,
-			formData.PhoneNumber, formData.FeeType, formData.TeamName, formData.SubmittedAt, formData.TransactionID,
-			uploadedPhotoURLs.CancelledChequeURL, uploadedPhotoURLs.PassbookPhotoURL,
-			uploadedPhotoURLs.AadhaarPhotoURL, uploadedPhotoURLs.PaymentReceiptURL,
-			formData.InstitutionName, formData.InstitutionOtherName,
-			formData.Email, formData.DateOfBirth,
-			formData.AddressLine1, formData.AddressLine2, formData.City, formData.State, formData.PinCode,
-			boolToYesNo(formData.IsTeamLeader),
-			formData.ParentType, formData.ParentName, formData.ParentPhone, formData.ParentAadhaar,
-			formData.AccountHolderName, formData.AccountNumber, formData.ConfirmAccountNumber,
-			formData.BankName, formData.BranchName, formData.IFSCCode, formData.AccountType,
-			boolToYesNo(formData.IsParentAccount), formData.TransactionDate, formData.TotalAmount,
-			boolToYesNo(strings.TrimSpace(formData.CancelledChequePreview) != ""), boolToYesNo(strings.TrimSpace(formData.PassbookPhotoPreview) != ""),
-			boolToYesNo(strings.TrimSpace(formData.AadhaarPhotoPreview) != ""), boolToYesNo(strings.TrimSpace(formData.PaymentReceiptPreview) != ""),
-			string(guardianBankDocJSON),
+		baseRow := []interface{}{
+			formData.Name,                      // 1. Participant Name
+			formData.ScOrUni,                    // 2. School / University
+			resolvedInstitutionName(formData),   // 3. Resolved Institution Name
+			formData.IntOrExt,                  // 4. Internal / External
+			formData.Roll,                      // 5. Roll Number
+			formData.PhoneNumber,               // 6. Phone Number
+			formData.FeeType,                   // 7. Fee Type
+			formData.TeamName,                  // 8. Team Name
+			formData.SubmittedAt,               // 9. Submission Timestamp
+			formData.TransactionID,              // 10. Transaction ID
+			uploadedPhotoURLs.CancelledChequeURL, // 11. Cancelled Cheque URL
+			uploadedPhotoURLs.PassbookPhotoURL,   // 12. Passbook Photo URL
+			uploadedPhotoURLs.AadhaarPhotoURL,    // 13. Aadhaar Photo URL
+			uploadedPhotoURLs.PaymentReceiptURL,  // 14. Payment Receipt URL
+			formData.InstitutionName,            // 15. Institution Name
+			formData.InstitutionOtherName,       // 16. Other Institution Name
+			formData.Email,                      // 17. Email Address
+			formData.DateOfBirth,                // 18. Date of Birth
+			formData.AddressLine1,               // 19. Address Line 1
+			formData.AddressLine2,               // 20. Address Line 2
+			formData.City,                       // 21. City
+			formData.State,                      // 22. State
+			formData.PinCode,                   // 23. PIN Code
+			boolToYesNo(formData.IsTeamLeader),   // 24. Is Team Leader
+			formData.ParentType,                 // 25. Parent / Guardian Type
+			formData.ParentName,                 // 26. Parent / Guardian Name
+			formData.ParentPhone,                // 27. Parent / Guardian Phone
+			formData.ParentAadhaar,              // 28. Parent Aadhaar
+			formData.AccountHolderName,          // 29. Account Holder Name
+			formData.AccountNumber,              // 30. Account Number
+			formData.ConfirmAccountNumber,       // 31. Confirm Account Number
+			formData.BankName,                   // 32. Bank Name
+			formData.BranchName,                 // 33. Bank Branch Name
+			formData.IFSCCode,                   // 34. IFSC Code
+			formData.AccountType,                // 35. Account Type
+			boolToYesNo(formData.IsParentAccount), // 36. Is Parent Account
+			formData.TransactionDate,            // 37. Transaction Date
+			formData.TotalAmount,                // 38. Total Amount Paid
+			boolToYesNo(strings.TrimSpace(formData.CancelledChequePreview) != ""), // 39. Cancelled Cheque Uploaded
+			boolToYesNo(strings.TrimSpace(formData.PassbookPhotoPreview) != ""),   // 40. Passbook Photo Uploaded
+			boolToYesNo(strings.TrimSpace(formData.AadhaarPhotoPreview) != ""),    // 41. Aadhaar Photo Uploaded
+			boolToYesNo(strings.TrimSpace(formData.PaymentReceiptPreview) != ""),  // 42. Payment Receipt Uploaded
+			string(guardianBankDocJSON),          // 43. Guardian Bank Documents Snapshot
 		}
 
 		verticals := [][]Vertical{
@@ -278,9 +306,9 @@ func main() {
 		}
 
 		for i, vertical := range verticals {
-			if err := appendToSheet(ctx, srv, vertical, baseRow, strconv.Itoa(i+1)); err != nil {
+			if err := appendToSheet(ctx, srv, vertical, baseRow, strconv.Itoa(i+1), formData.AadhaarNumber); err != nil {
 				fmt.Printf("failed to append to sheet %d: %v\n", i, err)
-				c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to append"})
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 				return
 			}
 		}
@@ -359,14 +387,14 @@ func main() {
 			srv, err = sheets.NewService(ctx, option.WithCredentialsFile("secrets.json"))
 		}
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 
 		closedEvents, err := getClosedEvents(ctx, srv)
 		if err != nil {
 			fmt.Printf("failed to get closed events: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "error from our end"})
 			return
 		}
 
