@@ -163,6 +163,14 @@ export default function RegistrationPage() {
     ) ?? false;
     const paymentInstitution = hasTechnoVogue ? "TECHNOVOGUE" : data.institutionName;
 
+    const paidEventCount = useMemo(() => {
+        const allEvents = [
+            ...data.vertical1, ...data.vertical2, ...data.vertical3, ...data.vertical4,
+            ...data.vertical5, ...data.vertical6, ...data.vertical7, ...data.vertical8
+        ];
+        return allEvents.filter(e => e.members !== null && !e.free).length;
+    }, [data]);
+
     const updateFields = (fields: Partial<FormData>) => {
         setData((prev) => ({ ...prev, ...fields }));
     };
@@ -227,6 +235,7 @@ export default function RegistrationPage() {
                 prices={prices}
                 fromUni={fromUni}
                 institutionName={paymentInstitution}
+                paidEventCount={paidEventCount}
                 key="payment"
             /> },
         );

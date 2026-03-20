@@ -10,6 +10,7 @@ type PaymentFormProps = PaymentFormData & {
     prices: number,
     fromUni: boolean,
     institutionName: string,
+    paidEventCount: number,
     updateFields: (fields: Partial<PaymentFormData>) => void
 }
 
@@ -21,6 +22,7 @@ export function PaymentForm({
     prices,
     fromUni,
     institutionName,
+    paidEventCount,
     updateFields
 }: PaymentFormProps) {
     const [qrModalOpen, setQrModalOpen] = useState(false);
@@ -171,29 +173,43 @@ export function PaymentForm({
                 {!isPaid && (
                     <>
                         <div className="space-y-4">
-                            {/* UPI Payment Option */}
-                            <div className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden group hover:border-violet-200 transition-all duration-300">
-                                <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4">
-                                    <div className={`p-4 bg-gradient-to-br ${paymentInfo.color} rounded-2xl shadow-lg shadow-violet-500/10 transition-transform group-hover:scale-110`}>
-                                        <QrCode className="w-6 h-6 text-white" />
+                            {/* UPI Payment Option - Only show if exactly one paid event is selected */}
+                            {paidEventCount === 1 ? (
+                                <div className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden group hover:border-violet-200 transition-all duration-300">
+                                    <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4">
+                                        <div className={`p-4 bg-gradient-to-br ${paymentInfo.color} rounded-2xl shadow-lg shadow-violet-500/10 transition-transform group-hover:scale-110`}>
+                                            <QrCode className="w-6 h-6 text-white" />
+                                        </div>
+                                        <div className="flex-1 text-center sm:text-left">
+                                            <h3 className="font-black text-slate-800 text-lg uppercase tracking-tight">UPI / QR Payment</h3>
+                                            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Recommended & Fastest Way</p>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setQrModalOpen(true)}
+                                            className={`w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r ${paymentInfo.color} text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:shadow-violet-500/40 hover:scale-105 active:scale-95 transition-all duration-300 uppercase`}
+                                        >
+                                            Generate QR Code
+                                        </button>
                                     </div>
-                                    <div className="flex-1 text-center sm:text-left">
-                                        <h3 className="font-black text-slate-800 text-lg uppercase tracking-tight">UPI / QR Payment</h3>
-                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Recommended & Fastest Way</p>
+                                    <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-2">
+                                        <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Secured by PayTM Merchant Services</span>
                                     </div>
-                                    <button 
-                                        type="button"
-                                        onClick={() => setQrModalOpen(true)}
-                                        className={`w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r ${paymentInfo.color} text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:shadow-violet-500/40 hover:scale-105 active:scale-95 transition-all duration-300 uppercase`}
-                                    >
-                                        Generate QR Code
-                                    </button>
                                 </div>
-                                <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-2">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Secured by PayTM Merchant Services</span>
+                            ) : paidEventCount > 1 && (
+                                <div className="bg-amber-50 rounded-2xl border-2 border-amber-100 p-6 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left transition-all hover:border-amber-200">
+                                    <div className="p-4 bg-amber-100 rounded-2xl text-amber-600">
+                                        <Building2 className="w-8 h-8" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-black text-amber-900 uppercase tracking-tight text-lg italic">Multi-Event Payment Notice</h4>
+                                        <p className="text-xs sm:text-sm text-amber-700 mt-1 font-medium leading-relaxed">
+                                            QR codes are temporarily disabled for multiple event selections. Please use the <b>Bank Transfer</b> details provided below to complete your payment.
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Bank Transfer Option */}
                             <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300">

@@ -33,7 +33,7 @@ const verticalInfo: Record<VerticalKey, { title: string; shortTitle: string; sub
 };
 
 // Payment Modal
-function PaymentModal({ isOpen, onClose, fromUni, totalPrice, institutionName, hasTechnoVogue }: { isOpen: boolean; onClose: () => void; fromUni: boolean; totalPrice: number; institutionName: string; hasTechnoVogue: boolean }) {
+function PaymentModal({ isOpen, onClose, fromUni, totalPrice, institutionName, hasTechnoVogue, paidEventCount }: { isOpen: boolean; onClose: () => void; fromUni: boolean; totalPrice: number; institutionName: string; hasTechnoVogue: boolean; paidEventCount: number }) {
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const bankDetails = { bankName: "Axis Bank", accountName: "MANAV RACHNA INTERNATIONAL INSTITUTE OF RESEARCH AND STUDIES GST", accountNo: "924020046485383", ifscCode: "UTIB0002693" };
     const copyToClipboard = (text: string, field: string) => { navigator.clipboard.writeText(text); setCopiedField(field); setTimeout(() => setCopiedField(null), 2000); };
@@ -61,37 +61,53 @@ function PaymentModal({ isOpen, onClose, fromUni, totalPrice, institutionName, h
                 </div>
                 
                 <div className="p-6 space-y-6">
-                    {/* QR Code Section */}
-                    <div className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden">
-                        <div className="bg-slate-50/50 p-4 border-b border-slate-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <QrCode className={`w-4 h-4 text-slate-400`} />
-                                <span className="text-xs font-bold text-slate-800 uppercase tracking-widest">Scan to Pay</span>
-                            </div>
-                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">RECOMMENDED</span>
-                        </div>
-                        
-                        <div className="p-8 flex flex-col items-center justify-center">
-                            <div className="relative group p-4 border-2 border-slate-100 rounded-3xl shadow-inner bg-slate-50/30">
-                                <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentInfo.url)}&margin=10`}
-                                    alt="UPI QR Code"
-                                    className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-xl"
-                                />
-                                <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r ${paymentInfo.color} text-white text-[10px] font-bold rounded-full shadow-lg border-2 border-white whitespace-nowrap`}>
-                                    SCAN WITH ANY UPI APP
+                    {/* QR Code Section - Only show if exactly one paid event is selected */}
+                    {paidEventCount === 1 ? (
+                        <div className="bg-white rounded-2xl border-2 border-slate-100 shadow-sm overflow-hidden">
+                            <div className="bg-slate-50/50 p-4 border-b border-slate-100 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <QrCode className={`w-4 h-4 text-slate-400`} />
+                                    <span className="text-xs font-bold text-slate-800 uppercase tracking-widest">Scan to Pay</span>
                                 </div>
+                                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">RECOMMENDED</span>
                             </div>
-                            <p className="mt-8 text-[11px] text-slate-400 font-medium text-center uppercase tracking-widest leading-relaxed">
-                                {paymentInfo.label}<br/>Secured by PayTM
-                            </p>
+                            
+                            <div className="p-8 flex flex-col items-center justify-center">
+                                <div className="relative group p-4 border-2 border-slate-100 rounded-3xl shadow-inner bg-slate-50/30">
+                                    <img
+                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentInfo.url)}&margin=10`}
+                                        alt="UPI QR Code"
+                                        className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-xl"
+                                    />
+                                    <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r ${paymentInfo.color} text-white text-[10px] font-bold rounded-full shadow-lg border-2 border-white whitespace-nowrap`}>
+                                        SCAN WITH ANY UPI APP
+                                    </div>
+                                </div>
+                                <p className="mt-8 text-[11px] text-slate-400 font-medium text-center uppercase tracking-widest leading-relaxed">
+                                    {paymentInfo.label}<br/>Secured by PayTM
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    ) : paidEventCount > 1 ? (
+                        <div className="bg-amber-50 rounded-2xl border-2 border-amber-100 p-5 flex flex-col items-center text-center gap-3">
+                            <div className="p-3 bg-amber-100 rounded-full">
+                                <Building2 className="w-6 h-6 text-amber-600" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-amber-900 text-sm italic">Multi-Event Payment Required</h4>
+                                <p className="text-[11px] text-amber-700 mt-1 leading-relaxed">
+                                    Since you have selected multiple paid events, please use the <b>Bank Transfer</b> option below to complete your payment. QR codes are only available for single event registrations.
+                                </p>
+                            </div>
+                        </div>
+                    ) : null}
 
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100" /></div>
-                        <div className="relative flex justify-center text-xs uppercase tracking-widest font-black text-slate-300"><span className="bg-white px-4">OR</span></div>
-                    </div>
+                    {paidEventCount === 1 && (
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100" /></div>
+                            <div className="relative flex justify-center text-xs uppercase tracking-widest font-black text-slate-300"><span className="bg-white px-4">OR</span></div>
+                        </div>
+                    )}
 
                     <div className="p-5 bg-gradient-to-br from-blue-50/80 to-cyan-50/80 rounded-2xl border-2 border-blue-100 shadow-sm hover:border-blue-200 transition-all duration-300">
                         <div className="flex items-center gap-3 mb-4"><div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg shadow-blue-500/20"><Building2 className="w-5 h-5 text-white" /></div><span className="font-bold text-blue-900 tracking-tight">Bank Transfer</span></div>
@@ -522,6 +538,7 @@ export default function EventForm({
                 totalPrice={price} 
                 institutionName={institutionName}
                 hasTechnoVogue={isTechnoVogueSelected}
+                paidEventCount={selectedEvents.filter(e => !e.free).length}
             />
         </div>
     );
