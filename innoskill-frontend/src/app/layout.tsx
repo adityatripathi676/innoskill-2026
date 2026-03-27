@@ -3,6 +3,7 @@ import "@/app/globals.css"
 import { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
 import SiteNav from '@/components/site-nav';
+import { Analytics } from '@vercel/analytics/next';
 
 const poppins = Poppins({ subsets: ['latin'], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
 
@@ -54,6 +55,7 @@ export default function RootLayout({
         <main className="page-enter">
           {children}
         </main>
+        <Analytics />
       </body>
     </html>
   )
