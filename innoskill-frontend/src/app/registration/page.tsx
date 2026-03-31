@@ -10,7 +10,7 @@ import { PaymentForm } from "@/components/payment-form";
 import ProgressBar from "@/components/progress-bar";
 import UserForm from "@/components/user-form";
 import { useMultiForm } from "@/hooks/useMultiForm";
-import { userFormSchema, parentFormSchema, bankFormSchema } from "@/schemas/userFormSchema";
+import { userFormSchema, parentFormSchema } from "@/schemas/userFormSchema";
 import { FormData } from "@/types";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState, useMemo, Fragment } from "react";
@@ -327,19 +327,7 @@ export default function RegistrationPage() {
             }
         }
 
-        // Step: Bank Details
-        if (currentStepId === "bank") {
-            const { accountHolderName, accountNumber, confirmAccountNumber, bankName, branchName, ifscCode, accountType, isParentAccount } = data;
-            
-            const validated = bankFormSchema.safeParse({
-                accountHolderName, accountNumber, confirmAccountNumber, bankName, branchName, ifscCode, accountType, isParentAccount
-            });
-            
-            if (!validated.success) {
-                showError(validated.error.issues[0].message);
-                return false;
-            }
-        }
+        // Step: Bank Details (optional - users may skip)
 
         // Step: Document Upload
         if (currentStepId === "documents") {
