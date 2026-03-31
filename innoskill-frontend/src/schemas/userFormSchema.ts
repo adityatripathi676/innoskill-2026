@@ -70,8 +70,6 @@ export const bankFormSchema = z.object({
 
 // Step 4: Document Upload Schema
 export const documentFormSchema = z.object({
-    cancelledChequePreview: z.string().min(1, { message: "Cancelled cheque is required" }),
-    passbookPhotoPreview: z.string().min(1, { message: "Passbook photo is required" }),
     aadhaarPhotoPreview: z.string().optional(), // Required only for minors, validated separately
 });
 

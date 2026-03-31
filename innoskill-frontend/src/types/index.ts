@@ -50,10 +50,6 @@ export type BankFormData = {
 
 // Step 4: Document Uploads
 export type DocumentFormData = {
-    cancelledCheque: File | null,
-    cancelledChequePreview: string,
-    passbookPhoto: File | null,
-    passbookPhotoPreview: string,
     aadhaarPhoto: File | null, // Required for minors to verify relation
     aadhaarPhotoPreview: string,
 }

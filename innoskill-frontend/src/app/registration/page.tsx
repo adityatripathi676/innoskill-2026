@@ -55,10 +55,6 @@ const initialData: FormData = {
     isParentAccount: false,
     
     // Document Uploads
-    cancelledCheque: null,
-    cancelledChequePreview: "",
-    passbookPhoto: null,
-    passbookPhotoPreview: "",
     aadhaarPhoto: null,
     aadhaarPhotoPreview: "",
     
@@ -214,10 +210,6 @@ export default function RegistrationPage() {
                 key="bank"
             /> },
             { id: "documents", label: "Documents", Icon: FolderOpen, component: <DocumentForm 
-                cancelledCheque={data.cancelledCheque}
-                cancelledChequePreview={data.cancelledChequePreview}
-                passbookPhoto={data.passbookPhoto}
-                passbookPhotoPreview={data.passbookPhotoPreview}
                 aadhaarPhoto={data.aadhaarPhoto}
                 aadhaarPhotoPreview={data.aadhaarPhotoPreview}
                 updateFields={updateFields}
@@ -351,15 +343,10 @@ export default function RegistrationPage() {
 
         // Step: Document Upload
         if (currentStepId === "documents") {
-            const { cancelledChequePreview, passbookPhotoPreview, aadhaarPhotoPreview } = data;
+            const { aadhaarPhotoPreview } = data;
             
             if (!aadhaarPhotoPreview) {
                 showError("Aadhaar card is required for identity verification");
-                return false;
-            }
-
-            if (!cancelledChequePreview && !passbookPhotoPreview) {
-                showError("Please upload either a cancelled cheque or passbook front page");
                 return false;
             }
         }
@@ -440,8 +427,6 @@ export default function RegistrationPage() {
             totalAmount: prices,
             transactionID: prices === 0 ? "FREE" : data.transactionID,
             // Remove File objects (just keep previews for reference)
-            cancelledCheque: null,
-            passbookPhoto: null,
             aadhaarPhoto: null,
             paymentReceipt: null,
         };

@@ -2,7 +2,7 @@
 
 import { DocumentFormData } from "@/types";
 import FormWrapper from "./form-wrapper";
-import { Upload, FileImage, Check, X, AlertCircle, CreditCard, BookOpen, IdCard, Eye, Trash2 } from "lucide-react";
+import { Upload, FileImage, Check, X, AlertCircle, IdCard, Eye, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import Image from "next/image";
 
@@ -250,10 +250,6 @@ function UploadCard({
 }
 
 export default function DocumentForm({
-    cancelledCheque,
-    cancelledChequePreview,
-    passbookPhoto,
-    passbookPhotoPreview,
     aadhaarPhoto,
     aadhaarPhotoPreview,
     updateFields,
@@ -296,39 +292,7 @@ export default function DocumentForm({
                     onRemove={() => updateFields({ aadhaarPhoto: null, aadhaarPhotoPreview: "" })}
                 />
 
-                {/* Section Header - Bank Documents */}
-                <div className="flex items-center gap-3 mt-4">
-                    <div className="p-2 bg-orange-100 rounded-xl flex-shrink-0">
-                        <CreditCard className="w-4 h-4 text-orange-600" />
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-800">Bank Verification (Any One Required)</h3>
-                </div>
 
-                <div className="grid grid-cols-1 gap-4">
-                    {/* Cancelled Cheque */}
-                    <UploadCard
-                        title="Cancelled Cheque"
-                        description="Upload a clear image of your cancelled cheque showing account details"
-                        icon={CreditCard}
-                        file={cancelledCheque}
-                        preview={cancelledChequePreview}
-                        required={false}
-                        onUpload={(file, preview) => updateFields({ cancelledCheque: file, cancelledChequePreview: preview })}
-                        onRemove={() => updateFields({ cancelledCheque: null, cancelledChequePreview: "" })}
-                    />
-
-                    {/* Passbook Photo */}
-                    <UploadCard
-                        title="Passbook Front Page"
-                        description="Upload the first page of your passbook showing account holder name and number"
-                        icon={BookOpen}
-                        file={passbookPhoto}
-                        preview={passbookPhotoPreview}
-                        required={false}
-                        onUpload={(file, preview) => updateFields({ passbookPhoto: file, passbookPhotoPreview: preview })}
-                        onRemove={() => updateFields({ passbookPhoto: null, passbookPhotoPreview: "" })}
-                    />
-                </div>
 
                 {/* Tips Section */}
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
