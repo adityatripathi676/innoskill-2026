@@ -481,7 +481,7 @@ export default function UserForm({
                     <div className="p-2 bg-blue-100 rounded-xl flex-shrink-0">
                         <MapPin className="w-4 h-4 text-blue-600" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800">Address</h3>
+                    <h3 className="text-sm font-bold text-slate-800">School/University Address</h3>
                 </div>
 
                 <div className="form-field-group">
