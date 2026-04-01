@@ -201,7 +201,7 @@ export default function UserForm({
 
                 if (!res.ok) throw new Error("Fetch failed");
                 const json = await res.json();
-                
+
                 const office = json?.[0]?.PostOffice?.[0];
                 if (office) {
                     updateFields({
@@ -493,7 +493,7 @@ export default function UserForm({
                     <input
                         required
                         type="text"
-                        placeholder="House/flat number, street"
+                        placeholder="School/University Address"
                         className="form-input text-sm sm:text-base"
                         value={addressLine1}
                         onChange={(e) => updateFields({ addressLine1: e.target.value })}
