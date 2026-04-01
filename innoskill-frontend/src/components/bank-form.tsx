@@ -39,16 +39,16 @@ export default function BankForm({
     return (
         <FormWrapper
             title="Bank Account Details"
-            subtitle="For refunds and prizes"
+            subtitle="Optional — skip if not applicable"
         >
             <div className="flex flex-col w-full gap-4 sm:gap-5">
                 {/* Info Notice */}
                 <div className="info-card-blue">
                     <Landmark className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-sm font-semibold text-blue-800">Why we need bank details</p>
+                        <p className="text-sm font-semibold text-blue-800">Bank details are optional</p>
                         <p className="text-xs sm:text-sm text-blue-600 mt-1">
-                            Used for prize/refund transfer via NEFT/IMPS.
+                            Provide your bank details for prize/refund transfer via NEFT/IMPS. You may skip this step.
                         </p>
                     </div>
                 </div>
@@ -112,10 +112,8 @@ export default function BankForm({
                     <label className="form-label text-xs sm:text-sm">
                         <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         Account Holder Name
-                        <span className="text-red-500 ml-0.5">*</span>
                     </label>
                     <input
-                        required
                         type="text"
                         placeholder="Name as per bank records"
                         className="form-input text-sm sm:text-base uppercase"
@@ -133,11 +131,9 @@ export default function BankForm({
                         <label className="form-label text-xs sm:text-sm">
                             <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             Account Number
-                            <span className="text-red-500 ml-0.5">*</span>
                         </label>
                         <div className="relative">
                             <input
-                                required
                                 type={showAccountNumber ? "text" : "password"}
                                 inputMode="numeric"
                                 placeholder="Enter account number"
@@ -159,11 +155,9 @@ export default function BankForm({
                         <label className="form-label text-xs sm:text-sm">
                             <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             Confirm Account Number
-                            <span className="text-red-500 ml-0.5">*</span>
                         </label>
                         <div className="relative">
                             <input
-                                required
                                 type="text"
                                 inputMode="numeric"
                                 placeholder="Re-enter account number"
@@ -206,10 +200,8 @@ export default function BankForm({
                         <label className="form-label text-xs sm:text-sm">
                             <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             Bank Name
-                            <span className="text-red-500 ml-0.5">*</span>
                         </label>
                         <input
-                            required
                             type="text"
                             placeholder="e.g., State Bank of India"
                             className="form-input text-sm sm:text-base"
@@ -222,10 +214,8 @@ export default function BankForm({
                         <label className="form-label text-xs sm:text-sm">
                             <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             Branch Name
-                            <span className="text-red-500 ml-0.5">*</span>
                         </label>
                         <input
-                            required
                             type="text"
                             placeholder="e.g., Faridabad Main Branch"
                             className="form-input text-sm sm:text-base"
@@ -241,11 +231,9 @@ export default function BankForm({
                         <label className="form-label text-xs sm:text-sm">
                             <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             IFSC Code
-                            <span className="text-red-500 ml-0.5">*</span>
                         </label>
                         <div className="relative">
                             <input
-                                required
                                 type="text"
                                 placeholder="e.g., SBIN0001234"
                                 className={`form-input text-sm sm:text-base uppercase tracking-wider ${
