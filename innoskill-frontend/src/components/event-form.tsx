@@ -392,8 +392,9 @@ export default function EventForm({
                     const info = verticalInfo[key];
                     const Icon = info.icon;
                     const isExpanded = expandedVertical === key;
-                    const events = verticals[key].filter(e => !e.closed);
+                    const events = verticals[key];
                     const selectedCount = verticals[key].filter(e => e.members !== null).length;
+                    const openEventsCount = verticals[key].filter(e => !e.closed).length;
 
                     return (
                         <div key={key} className={`rounded-2xl border-2 overflow-hidden transition-all duration-300 ${isExpanded ? `border-opacity-100 ${info.borderColor} shadow-md` : 'border-slate-200 hover:border-slate-300'}`}>
@@ -419,7 +420,7 @@ export default function EventForm({
                                     <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 truncate">{info.description}</p>
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0">
-                                    <span className="hidden sm:block text-xs text-slate-400">{events.length} events</span>
+                                    <span className="hidden sm:block text-xs text-slate-400">{openEventsCount} / {events.length} open events</span>
                                     {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                                 </div>
                             </button>
@@ -434,18 +435,20 @@ export default function EventForm({
                                         return (
                                             <div
                                                 key={event.eventName}
-                                                className={`rounded-xl border-2 transition-all cursor-pointer touch-manipulation ${isSelected ? `bg-gradient-to-r ${info.bgGradient} ${info.borderColor} shadow-sm` : 'bg-slate-50 border-transparent hover:bg-white hover:border-slate-200'}`}
-                                                onClick={() => handleCheckboxChange(key, actualIndex)}
+                                                className={`rounded-xl border-2 transition-all cursor-pointer touch-manipulation ${event.closed ? 'opacity-60 grayscale-[0.4] bg-slate-100 border-slate-200 cursor-not-allowed' : isSelected ? `bg-gradient-to-r ${info.bgGradient} ${info.borderColor} shadow-sm` : 'bg-slate-50 border-transparent hover:bg-white hover:border-slate-200'}`}
+                                                onClick={() => !event.closed && handleCheckboxChange(key, actualIndex)}
                                             >
                                                 <div className="flex items-start gap-3 p-3">
                                                     {/* Checkbox */}
-                                                    <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${isSelected ? `bg-gradient-to-r ${info.gradient} border-transparent` : 'border-slate-300 bg-white'}`}>
+                                                    <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${event.closed ? 'border-slate-200 bg-slate-100' : isSelected ? `bg-gradient-to-r ${info.gradient} border-transparent` : 'border-slate-300 bg-white'}`}>
                                                         {isSelected && <Check className="w-3 h-3 text-white" />}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="font-medium text-xs sm:text-sm text-slate-800 leading-snug">{event.eventName}</p>
                                                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                                            {event.free ? (
+                                                            {event.closed ? (
+                                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold tracking-wider">CLOSED</span>
+                                                            ) : event.free ? (
                                                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">Free</span>
                                                             ) : (
                                                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-semibold flex items-center gap-0.5">

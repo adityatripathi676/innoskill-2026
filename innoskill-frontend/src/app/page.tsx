@@ -212,7 +212,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80", 
                                 events: 4,
                                 gradient: "from-violet-500 to-fuchsia-500",
-                                eventList: ["BGMI Tourney", "Tekken 8 Tournament", "EBRU Marbel Painting", "DECO Page"]
+                                eventList: ["BGMI Tourney (Closed)", "Tekken 8 Tournament (Closed)", "EBRU Marbel Painting", "DECO Page"]
                             },
                         ].map((vertical) => (
                             <div

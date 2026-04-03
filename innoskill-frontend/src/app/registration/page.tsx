@@ -119,8 +119,8 @@ const initialData: FormData = {
         { eventName: "SnapFlickShowdown: \"Reel Making Competition\"", members: null, price: 0, free: false, closed: false },
     ],
     vertical8: [
-        { eventName: "BGMI Tourney", members: null, price: 0, free: false, closed: false },
-        { eventName: "Tekken 8 Tournament", members: null, price: 0, free: false, closed: false },
+        { eventName: "BGMI Tourney", members: null, price: 0, free: false, closed: true },
+        { eventName: "Tekken 8 Tournament", members: null, price: 0, free: false, closed: true },
         { eventName: "EBRU Marbel Painting", members: null, price: 0, free: false, closed: false },
         { eventName: "DECO Page", members: null, price: 0, free: false, closed: false },
     ],
