@@ -17,6 +17,7 @@ export default function FormFooter({ dark = false }: { dark?: boolean }) {
                     <div className={`flex flex-col gap-2 text-sm ${dark ? "text-slate-400" : "text-slate-600"}`}>
                         <Link href="/" className="hover:text-orange-500 transition-colors">Home</Link>
                         <Link href="/registration" className="hover:text-orange-500 transition-colors">Registration</Link>
+                        <Link href="/coordinators" className="hover:text-orange-500 transition-colors">Coordinators</Link>
                         <Link href="/contact" className="hover:text-orange-500 transition-colors">Contact Us</Link>
                     </div>
                 </div>

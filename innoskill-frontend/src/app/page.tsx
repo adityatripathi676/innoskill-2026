@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import mrlogo from "@/assets/mrlogo.png";
-import { Award, ChevronRight, Cpu, Globe, MapPin, Rocket, ShieldCheck, Trophy, Users, X } from "lucide-react";
+import { Award, CalendarDays, ChevronRight, Cpu, Globe, MapPin, Rocket, ShieldCheck, Trophy, Users, X } from "lucide-react";
 
 type VerticalCard = {
     title: string;
@@ -149,7 +149,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80", 
                                 events: 11,
                                 gradient: "from-red-600 to-orange-600",
-                                eventList: ["Theme Based Model Demo (Srijan)", "Best out of Waste (Nav Srijan)", "Code Debugging", "LAN Gaming", "BioGenius", "Vista Vibes- Video Blog", "Technical Memes", "Build a Circuit", "Workshop on Laser Cutting and Design", "Workshop on 3D Printing", "Capture the Flag (CTF)"]
+                                eventList: ["Theme Based Model Demo (Srijan) (Closed)", "Best out of Waste (Nav Srijan) (Closed)", "Code Debugging (Closed)", "LAN Gaming (Closed)", "BioGenius (Closed)", "Vista Vibes- Video Blog (Closed)", "Technical Memes (Closed)", "Build a Circuit (Closed)", "Workshop on Laser Cutting and Design (Closed)", "Workshop on 3D Printing (Closed)", "Capture the Flag (CTF) (Closed)"]
                             },
                             { 
                                 title: "Business and Management Conundrum", 
@@ -158,7 +158,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&q=80", 
                                 events: 4,
                                 gradient: "from-orange-500 to-yellow-500",
-                                eventList: ["Pro Launch Series 3", "Ideattrackt Series 4", "Poster Making Series 4", "Finance Ki Pathshala Series 3"]
+                                eventList: ["Pro Launch Series 3 (Closed)", "Ideattrackt Series 4 (Closed)", "Poster Making Series 4 (Closed)", "Finance Ki Pathshala Series 3 (Closed)"]
                             },
                             { 
                                 title: "Healthcare Mystery", 
@@ -167,7 +167,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80", 
                                 events: 6,
                                 gradient: "from-emerald-500 to-teal-500",
-                                eventList: ["Workshop on Body Composition Analysis", "Prototype development from farm to fork challege", "Food Waste to Wonder Challenge", "Oral Hygiene & Hand Hygiene", "Basic life Support", "YuvaFit"]
+                                eventList: ["Workshop on Body Composition Analysis (Closed)", "Prototype development from farm to fork challege (Closed)", "Food Waste to Wonder Challenge (Closed)", "Oral Hygiene & Hand Hygiene (Closed)", "Basic life Support (Closed)", "YuvaFit (Closed)"]
                             },
                             { 
                                 title: "Sustainathon", 
@@ -176,7 +176,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80", 
                                 events: 4,
                                 gradient: "from-green-500 to-lime-500",
-                                eventList: ["Sustainathon ( Idea Pitching)", "Eco-reel", "My community My Ad", "Ecothon - Model making"]
+                                eventList: ["Sustainathon ( Idea Pitching) (Closed)", "Eco-reel (Closed)", "My community My Ad (Closed)", "Ecothon - Model making (Closed)"]
                             },
                             { 
                                 title: "Culinary and Hospitality", 
@@ -185,7 +185,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80", 
                                 events: 2,
                                 gradient: "from-orange-500 to-yellow-500",
-                                eventList: ["Flavours of India, Culinary Competition", "Demonstration on Tropical Mocktails"]
+                                eventList: ["Flavours of India, Culinary Competition (Closed)", "Demonstration on Tropical Mocktails (Closed)"]
                             },
                             { 
                                 title: "Law Knot", 
@@ -194,7 +194,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80", 
                                 events: 4,
                                 gradient: "from-indigo-500 to-purple-500",
-                                eventList: ["Character On Trial", "Ink of Freedom", "Legal Escape Room", "Reel and Appeal"]
+                                eventList: ["Character On Trial (Closed)", "Ink of Freedom (Closed)", "Legal Escape Room (Closed)", "Reel and Appeal (Closed)"]
                             },
                             { 
                                 title: "Media and Literary Stumper", 
@@ -203,7 +203,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=800&q=80", 
                                 events: 4,
                                 gradient: "from-pink-500 to-rose-500",
-                                eventList: ["Techno- Vogue \"Technology Fashion Walk\"", "Green Policy Debate", "Terrahack", "SnapFlickShowdown: \"Reel Making Competition\""]
+                                eventList: ["Techno- Vogue \"Technology Fashion Walk\" (Closed)", "Green Policy Debate (Closed)", "Terrahack (Closed)", "SnapFlickShowdown: \"Reel Making Competition\" (Closed)"]
                             },
                             { 
                                 title: "Design Ignite", 
@@ -212,7 +212,7 @@ export default function Page() {
                                 image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80", 
                                 events: 4,
                                 gradient: "from-violet-500 to-fuchsia-500",
-                                eventList: ["BGMI Tourney (Closed)", "Tekken 8 Tournament (Closed)", "EBRU Marbel Painting", "DECO Page"]
+                                eventList: ["BGMI Tourney (Closed)", "Tekken 8 Tournament (Closed)", "EBRU Marbel Painting (Closed)", "DECO Page (Closed)"]
                             },
                         ].map((vertical) => (
                             <div
@@ -478,10 +478,10 @@ export default function Page() {
                     <div className="mt-16 text-center">
                         <Link
                             href="/registration"
-                            className="group inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 px-10 py-5 text-xl font-bold text-white shadow-lg shadow-red-500/25 transition-all duration-300 hover:shadow-orange-500/40 hover:scale-105"
+                            className="group inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-slate-600 to-slate-800 px-10 py-5 text-xl font-bold text-white shadow-lg transition-all duration-300 hover:scale-105"
                         >
-                            Start Your Journey
-                            <Rocket className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" size={24} />
+                            Registrations Closed
+                            <CalendarDays className="transition-transform group-hover:rotate-12" size={24} />
                         </Link>
                     </div>
                 </div>
@@ -516,11 +516,10 @@ export default function Page() {
                     <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Link
                             href="/registration"
-                            className="group relative inline-flex items-center gap-3 rounded-2xl bg-white px-10 py-5 text-xl font-bold text-slate-900 shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-orange-500/25 overflow-hidden btn-press"
+                            className="group relative inline-flex items-center gap-3 rounded-2xl bg-white px-10 py-5 text-xl font-bold text-slate-900 shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden btn-press"
                         >
-                            <span className="relative z-10">Register Now</span>
-                            <ChevronRight className="relative z-10 transition-transform group-hover:translate-x-1" size={24} />
-                            <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <span className="relative z-10">Registrations Closed</span>
+                            <CalendarDays className="relative z-10 transition-transform group-hover:rotate-12" size={24} />
                         </Link>
                     </div>
 

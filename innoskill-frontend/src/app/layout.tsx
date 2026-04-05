@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import SiteNav from '@/components/site-nav';
 import { Analytics } from '@vercel/analytics/next';
 
-const poppins = Poppins({ subsets: ['latin'], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
+const poppins = Poppins({ subsets: ['latin'], weight: ["300", "400", "500", "600", "700", "800", "900"] });
 
 export const metadata: Metadata = {
   title: 'INNOSKILLS 2026',

@@ -17,6 +17,8 @@ import { FormEvent, useState, useMemo, Fragment } from "react";
 import toast from "react-hot-toast";
 import { User, Shield, Landmark, FolderOpen, CalendarDays, CreditCard } from "lucide-react";
 
+const REGISTRATIONS_OPEN = false;
+
 const initialData: FormData = {
     // Personal Details
     name: "",
@@ -70,59 +72,59 @@ const initialData: FormData = {
     
     // Event Verticals
     vertical1: [
-        { eventName: "Theme Based Model Demo (Srijan)", members: null, price: 0, free: false, closed: false },
-        { eventName: "Best out of Waste (Nav Srijan)", members: null, price: 0, free: false, closed: false },
-        { eventName: "Code Debugging", members: null, price: 0, free: false, closed: false },
-        { eventName: "LAN Gaming", members: null, price: 0, free: false, closed: false },
-        { eventName: "BioGenius", members: null, price: 0, free: false, closed: false },
-        { eventName: "Vista Vibes- Video Blog", members: null, price: 0, free: false, closed: false },
-        { eventName: "Technical Memes", members: null, price: 0, free: false, closed: false },
-        { eventName: "Build a Circuit", members: null, price: 0, free: false, closed: false },
-        { eventName: "Workshop on Laser Cutting and Design", members: null, price: 0, free: false, closed: false },
-        { eventName: "Workshop on 3D Printing", members: null, price: 0, free: false, closed: false },
-        { eventName: "Capture the Flag (CTF)", members: null, price: 0, free: false, closed: false },
+        { eventName: "Theme Based Model Demo (Srijan)", members: null, price: 0, free: false, closed: true },
+        { eventName: "Best out of Waste (Nav Srijan)", members: null, price: 0, free: false, closed: true },
+        { eventName: "Code Debugging", members: null, price: 0, free: false, closed: true },
+        { eventName: "LAN Gaming", members: null, price: 0, free: false, closed: true },
+        { eventName: "BioGenius", members: null, price: 0, free: false, closed: true },
+        { eventName: "Vista Vibes- Video Blog", members: null, price: 0, free: false, closed: true },
+        { eventName: "Technical Memes", members: null, price: 0, free: false, closed: true },
+        { eventName: "Build a Circuit", members: null, price: 0, free: false, closed: true },
+        { eventName: "Workshop on Laser Cutting and Design", members: null, price: 0, free: false, closed: true },
+        { eventName: "Workshop on 3D Printing", members: null, price: 0, free: false, closed: true },
+        { eventName: "Capture the Flag (CTF)", members: null, price: 0, free: false, closed: true },
     ],
     vertical2: [
-        { eventName: "Pro Launch Series 3", members: null, price: 0, free: false, closed: false },
-        { eventName: "Ideattrackt Series 4", members: null, price: 0, free: false, closed: false },
-        { eventName: "Poster Making Series 4", members: null, price: 0, free: false, closed: false },
-        { eventName: "Finance Ki Pathshala Series 3", members: null, price: 0, free: false, closed: false },
+        { eventName: "Pro Launch Series 3", members: null, price: 0, free: false, closed: true },
+        { eventName: "Ideattrackt Series 4", members: null, price: 0, free: false, closed: true },
+        { eventName: "Poster Making Series 4", members: null, price: 0, free: false, closed: true },
+        { eventName: "Finance Ki Pathshala Series 3", members: null, price: 0, free: false, closed: true },
     ],
     vertical3: [
-        { eventName: "Workshop on Body Composition Analysis: Principles & Hands-on Training", members: null, price: 0, free: true, closed: false },
-        { eventName: "Prototype development from farm to fork challege", members: null, price: 0, free: false, closed: false },
-        { eventName: "Food Waste to Wonder Challenge", members: null, price: 0, free: false, closed: false },
-        { eventName: "Oral Hygiene & Hand Hygiene", members: null, price: 0, free: true, closed: false },
-        { eventName: "Basic life Support", members: null, price: 0, free: true, closed: false },
-        { eventName: "YuvaFit", members: null, price: 0, free: false, closed: false },
+        { eventName: "Workshop on Body Composition Analysis: Principles & Hands-on Training", members: null, price: 0, free: true, closed: true },
+        { eventName: "Prototype development from farm to fork challege", members: null, price: 0, free: false, closed: true },
+        { eventName: "Food Waste to Wonder Challenge", members: null, price: 0, free: false, closed: true },
+        { eventName: "Oral Hygiene & Hand Hygiene", members: null, price: 0, free: true, closed: true },
+        { eventName: "Basic life Support", members: null, price: 0, free: true, closed: true },
+        { eventName: "YuvaFit", members: null, price: 0, free: false, closed: true },
     ],
     vertical4: [
-        { eventName: "Sustainathon ( Idea Pitching)", members: null, price: 0, free: false, closed: false },
-        { eventName: "Eco-reel", members: null, price: 0, free: false, closed: false },
-        { eventName: "My community My Ad", members: null, price: 0, free: false, closed: false },
-        { eventName: "Ecothon - Model making", members: null, price: 0, free: false, closed: false },
+        { eventName: "Sustainathon ( Idea Pitching)", members: null, price: 0, free: false, closed: true },
+        { eventName: "Eco-reel", members: null, price: 0, free: false, closed: true },
+        { eventName: "My community My Ad", members: null, price: 0, free: false, closed: true },
+        { eventName: "Ecothon - Model making", members: null, price: 0, free: false, closed: true },
     ],
     vertical5: [
-        { eventName: "Flavours of India, Culinary Competition", members: null, price: 0, free: false, closed: false },
-        { eventName: "Demonstration on Tropical Mocktails", members: null, price: 0, free: true, closed: false },
+        { eventName: "Flavours of India, Culinary Competition", members: null, price: 0, free: false, closed: true },
+        { eventName: "Demonstration on Tropical Mocktails", members: null, price: 0, free: true, closed: true },
     ],
     vertical6: [
-        { eventName: "Character On Trial", members: null, price: 0, free: false, closed: false },
-        { eventName: "Ink of Freedom (Poetry, Shayari , Story-telling competition", members: null, price: 0, free: false, closed: false },
-        { eventName: "Legal Escape Room", members: null, price: 0, free: false, closed: false },
-        { eventName: "Reel and Appeal", members: null, price: 0, free: false, closed: false },
+        { eventName: "Character On Trial", members: null, price: 0, free: false, closed: true },
+        { eventName: "Ink of Freedom (Poetry, Shayari , Story-telling competition", members: null, price: 0, free: false, closed: true },
+        { eventName: "Legal Escape Room", members: null, price: 0, free: false, closed: true },
+        { eventName: "Reel and Appeal", members: null, price: 0, free: false, closed: true },
     ],
     vertical7: [
-        { eventName: "Techno- Vogue \"Technology Fashion Walk\"", members: null, price: 0, free: false, closed: false },
-        { eventName: "Green Policy Debate", members: null, price: 0, free: false, closed: false },
-        { eventName: "Terrahack", members: null, price: 0, free: false, closed: false },
-        { eventName: "SnapFlickShowdown: \"Reel Making Competition\"", members: null, price: 0, free: false, closed: false },
+        { eventName: "Techno- Vogue \"Technology Fashion Walk\"", members: null, price: 0, free: false, closed: true },
+        { eventName: "Green Policy Debate", members: null, price: 0, free: false, closed: true },
+        { eventName: "Terrahack", members: null, price: 0, free: false, closed: true },
+        { eventName: "SnapFlickShowdown: \"Reel Making Competition\"", members: null, price: 0, free: false, closed: true },
     ],
     vertical8: [
         { eventName: "BGMI Tourney", members: null, price: 0, free: false, closed: true },
         { eventName: "Tekken 8 Tournament", members: null, price: 0, free: false, closed: true },
-        { eventName: "EBRU Marbel Painting", members: null, price: 0, free: false, closed: false },
-        { eventName: "DECO Page", members: null, price: 0, free: false, closed: false },
+        { eventName: "EBRU Marbel Painting", members: null, price: 0, free: false, closed: true },
+        { eventName: "DECO Page", members: null, price: 0, free: false, closed: true },
     ],
 };
 
@@ -469,93 +471,133 @@ export default function RegistrationPage() {
                 <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-orange-50/80 via-orange-50/20 to-transparent pointer-events-none" />
 
                 <div className={`relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 ${getFormWidth()}`}>
-                    <ProgressBar currentStepIdx={currentStepIndex} totalSteps={totalSteps} />
+                    {REGISTRATIONS_OPEN ? (
+                        <>
+                            <ProgressBar currentStepIdx={currentStepIndex} totalSteps={totalSteps} />
 
-                    {/* Main Form Card */}
-                    <div className="bg-white rounded-3xl shadow-2xl shadow-slate-300/20 border border-slate-100 overflow-hidden transition-shadow duration-500 hover:shadow-slate-300/35">
-                        {/* Orange–red top accent bar */}
-                        <div className="h-1.5 bg-gradient-to-r from-orange-500 via-red-500 to-orange-400" />
+                            {/* Main Form Card */}
+                            <div className="bg-white rounded-3xl shadow-2xl shadow-slate-300/20 border border-slate-100 overflow-hidden transition-shadow duration-500 hover:shadow-slate-300/35">
+                                {/* Orange–red top accent bar */}
+                                <div className="h-1.5 bg-gradient-to-r from-orange-500 via-red-500 to-orange-400" />
 
-                        <div className="p-6 sm:p-8 md:p-10 lg:p-12">
-                            <FormHeader />
+                                <div className="p-6 sm:p-8 md:p-10 lg:p-12">
+                                    <FormHeader />
 
-                            {/* Icon Step Indicator */}
-                            <div className="flex items-center mt-7 mb-8 sm:mb-10">
-                                {stepConfigs.map(({ label, Icon }, idx) => (
-                                    <Fragment key={idx}>
-                                        <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-                                            <div className={`
-                                                w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border-2 transition-all duration-300
-                                                ${currentStepIndex === idx
-                                                    ? 'bg-orange-500 border-orange-500 shadow-lg shadow-orange-200/70 scale-110'
-                                                    : currentStepIndex > idx
-                                                        ? 'bg-blue-500 border-blue-500 shadow-sm shadow-blue-200/50'
-                                                        : 'bg-white border-slate-200'
-                                                }
-                                            `}>
-                                                {currentStepIndex > idx ? (
-                                                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                ) : (
-                                                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${currentStepIndex === idx ? 'text-white' : 'text-slate-300'}`} />
+                                    {/* Icon Step Indicator */}
+                                    <div className="flex items-center mt-7 mb-8 sm:mb-10">
+                                        {stepConfigs.map(({ label, Icon }, idx) => (
+                                            <Fragment key={idx}>
+                                                <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                                                    <div className={`
+                                                        w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                                                        ${currentStepIndex === idx
+                                                            ? 'bg-orange-500 border-orange-500 shadow-lg shadow-orange-200/70 scale-110'
+                                                            : currentStepIndex > idx
+                                                                ? 'bg-blue-500 border-blue-500 shadow-sm shadow-blue-200/50'
+                                                                : 'bg-white border-slate-200'
+                                                        }
+                                                    `}>
+                                                        {currentStepIndex > idx ? (
+                                                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        ) : (
+                                                            <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${currentStepIndex === idx ? 'text-white' : 'text-slate-300'}`} />
+                                                        )}
+                                                    </div>
+                                                    <span className={`text-[9px] sm:text-[10px] font-bold whitespace-nowrap tracking-wide uppercase transition-colors duration-300 ${
+                                                        currentStepIndex === idx ? 'text-orange-500' : currentStepIndex > idx ? 'text-blue-500' : 'text-slate-300'
+                                                    }`}>{label}</span>
+                                                </div>
+                                                {idx < stepConfigs.length - 1 && (
+                                                    <div className={`flex-1 h-0.5 mx-1.5 sm:mx-2.5 mb-5 rounded-full transition-all duration-500 ${currentStepIndex > idx ? 'bg-blue-400' : 'bg-slate-200'}`} />
+                                                )}
+                                            </Fragment>
+                                        ))}
+                                    </div>
+
+                                    <form onSubmit={handleSubmit}>
+                                        <div className={`transition-all duration-300 ease-out ${
+                                            isTransitioning
+                                                ? direction === 'forward' ? 'opacity-0 translate-x-8' : 'opacity-0 -translate-x-8'
+                                                : 'opacity-100 translate-x-0'
+                                        }`}>
+                                            {step}
+                                        </div>
+
+                                        {/* Navigation Buttons */}
+                                        <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
+                                            <div>
+                                                {!FirstStep && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={back}
+                                                        disabled={isTransitioning}
+                                                        className="group flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl border-2 border-blue-200 text-blue-600 font-semibold text-sm sm:text-base bg-white hover:bg-blue-50 hover:border-blue-400 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow-md"
+                                                    >
+                                                        <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                        </svg>
+                                                        Back
+                                                    </button>
                                                 )}
                                             </div>
-                                            <span className={`text-[9px] sm:text-[10px] font-bold whitespace-nowrap tracking-wide uppercase transition-colors duration-300 ${
-                                                currentStepIndex === idx ? 'text-orange-500' : currentStepIndex > idx ? 'text-blue-500' : 'text-slate-300'
-                                            }`}>{label}</span>
-                                        </div>
-                                        {idx < stepConfigs.length - 1 && (
-                                            <div className={`flex-1 h-0.5 mx-1.5 sm:mx-2.5 mb-5 rounded-full transition-all duration-500 ${currentStepIndex > idx ? 'bg-blue-400' : 'bg-slate-200'}`} />
-                                        )}
-                                    </Fragment>
-                                ))}
-                            </div>
-
-                            <form onSubmit={handleSubmit}>
-                                <div className={`transition-all duration-300 ease-out ${
-                                    isTransitioning
-                                        ? direction === 'forward' ? 'opacity-0 translate-x-8' : 'opacity-0 -translate-x-8'
-                                        : 'opacity-100 translate-x-0'
-                                }`}>
-                                    {step}
-                                </div>
-
-                                {/* Navigation Buttons */}
-                                <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
-                                    <div>
-                                        {!FirstStep && (
                                             <button
-                                                type="button"
-                                                onClick={back}
-                                                disabled={isTransitioning}
-                                                className="group flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl border-2 border-blue-200 text-blue-600 font-semibold text-sm sm:text-base bg-white hover:bg-blue-50 hover:border-blue-400 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow-md"
+                                                type="submit"
+                                                disabled={isSubmitting || isTransitioning}
+                                                className="group flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-300/40 hover:shadow-orange-400/60 hover:scale-[1.03] active:scale-[0.97] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                                             >
-                                                <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                                </svg>
-                                                Back
+                                                <span>{!LastStep ? "Continue" : isSubmitting ? "Submitting..." : "Submit Registration"}</span>
+                                                {!isSubmitting ? (
+                                                    <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                ) : (
+                                                    <span className="loading loading-spinner loading-xs sm:loading-sm" />
+                                                )}
                                             </button>
-                                        )}
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting || isTransitioning}
-                                        className="group flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-300/40 hover:shadow-orange-400/60 hover:scale-[1.03] active:scale-[0.97] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                    >
-                                        <span>{!LastStep ? "Continue" : isSubmitting ? "Submitting..." : "Submit Registration"}</span>
-                                        {!isSubmitting ? (
-                                            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        ) : (
-                                            <span className="loading loading-spinner loading-xs sm:loading-sm" />
-                                        )}
-                                    </button>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden transform hover:scale-[1.01] transition-all duration-500">
+                             <div className="h-2 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400" />
+                             <div className="p-8 sm:p-12 md:p-16 text-center">
+                                <FormHeader />
+                                <div className="mt-12 flex flex-col items-center">
+                                    <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-6">
+                                        <CalendarDays className="w-10 h-10 text-orange-500" />
+                                    </div>
+                                    <h2 className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight leading-tight">
+                                        Registrations <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Closed</span>
+                                    </h2>
+                                    <div className="mt-8 max-w-2xl">
+                                        <p className="text-lg text-slate-600 leading-relaxed font-medium">
+                                            The <span className="text-orange-600 font-bold uppercase tracking-wider">Innoskill 2026</span> journey has officially concluded.
+                                        </p>
+                                        <p className="mt-6 text-slate-500 leading-relaxed text-sm sm:text-base">
+                                            We express our deepest gratitude to all the incredible <span className="text-slate-800 font-bold">participating teams, innovative students, and dedicated faculty members</span> who came together to make this 9th edition a monumental success.
+                                        </p>
+                                        <p className="mt-4 text-slate-500 text-sm">
+                                            Your innovation, passion, and spirit of competition were truly the soul of Innoskill 2026.
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="mt-12 pt-10 border-t border-slate-100 w-full flex flex-col items-center gap-6">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">See you in Innoskill 2027</p>
+                                        <button 
+                                            onClick={() => router.push('/')}
+                                            className="px-8 py-3.5 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold rounded-2xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2"
+                                        >
+                                            Return to Home
+                                        </button>
+                                    </div>
+                                </div>
+                             </div>
                         </div>
-                    </div>
+                    )}
 
                     <p className="text-center mt-5 text-slate-400 text-xs sm:text-sm">
                         Need help? <a href="mailto:abhilasha.set@mriu.edu.in" className="text-orange-500 hover:text-orange-600 font-medium transition-colors">abhilasha.set@mriu.edu.in</a>

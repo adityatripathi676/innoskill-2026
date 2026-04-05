@@ -1311,3 +1311,63 @@ html {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ========================================
+   CELEBRATION ANIMATIONS
+   ======================================== */
+
+@keyframes celebFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes celebPopIn {
+    0% { opacity: 0; transform: scale(0.9) translateY(40px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes nameReveal {
+    0% { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes widthExpand {
+    from { width: 0; }
+    to { width: 6rem; }
+}
+
+@keyframes fadeUpReveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-celeb-fade-in {
+    animation: celebFadeIn 0.4s ease-out forwards;
+}
+
+.animate-celeb-pop-in {
+    animation: celebPopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-name-reveal-decorated {
+    animation: nameReveal 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.animate-width-expand-decorated {
+    animation: widthExpand 1s cubic-bezier(0.23, 1, 0.32, 1) 0.4s forwards;
+    width: 0;
+}
+
+.animate-fade-up-reveal-decorated {
+    animation: fadeUpReveal 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes slideRightPanel {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.animate-slide-right-panel {
+    animation: slideRightPanel 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

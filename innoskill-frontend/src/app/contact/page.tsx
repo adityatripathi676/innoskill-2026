@@ -51,7 +51,7 @@ export default function ContactPage() {
                         <span className="text-white/60 text-[10px] font-black tracking-widest uppercase">Innoskills 2026</span>
                     </div>
                     
-                    <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-white uppercase italic leading-[0.9]">
+                    <h1 className="text-4xl md:text-7xl font-black tracking-tighter text-white uppercase leading-[0.9]">
                         Connect <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-500">Center.</span>
                     </h1>
@@ -59,6 +59,16 @@ export default function ContactPage() {
                     <p className="mt-8 text-slate-400 max-w-xl mx-auto text-sm md:text-lg font-light leading-relaxed">
                         Seamless coordination for INNOSKILL 2026 participants and institutional leads.
                     </p>
+
+                    <div className="mt-10 flex justify-center">
+                        <Link 
+                            href="/coordinators"
+                            className="group inline-flex items-center gap-3 px-8 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-orange-500 hover:text-white transition-all duration-300"
+                        >
+                            View All Coordinators
+                            <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+                        </Link>
+                    </div>
                 </div>
             </section>
 
@@ -87,7 +97,7 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <div className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-1">{contact.role}</div>
-                                        <h3 className="text-2xl font-black text-white italic uppercase">{contact.name}</h3>
+                                        <h3 className="text-2xl font-black text-white uppercase">{contact.name}</h3>
                                         <p className="text-slate-500 text-xs font-medium">{contact.info}</p>
                                     </div>
                                 </div>
@@ -102,7 +112,7 @@ export default function ContactPage() {
                                     </a>
                                 </div>
                                 {/* Subtle Background Decor */}
-                                <div className="absolute top-0 right-0 p-4 opacity-10 font-bold italic text-white text-4xl select-none">/0{i+1}</div>
+                                <div className="absolute top-0 right-0 p-4 opacity-10 font-bold text-white text-4xl select-none">/0{i+1}</div>
                             </div>
                         ))}
                     </div>
@@ -115,7 +125,7 @@ export default function ContactPage() {
                     <div className="grid lg:grid-cols-2 gap-16 md:gap-24 items-start">
                         {/* FAQ Side */}
                         <div>
-                            <h2 className="text-3xl font-black text-white uppercase italic mb-8">Intelligence <span className="text-orange-500">Hub.</span></h2>
+                             <h2 className="text-3xl font-black text-white uppercase mb-8">Intelligence <span className="text-orange-500">Hub.</span></h2>
                             <div className="space-y-4">
                                 {faqs.map((faq, i) => (
                                     <div key={i} className="border-b border-white/5 pb-4">
@@ -140,7 +150,7 @@ export default function ContactPage() {
 
                         {/* Social Dock Side */}
                         <div className="relative p-10 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl overflow-hidden">
-                            <h3 className="text-2xl font-black text-white uppercase italic mb-4">Digital Matrix</h3>
+                            <h3 className="text-2xl font-black text-white uppercase mb-4">Digital Matrix</h3>
                             <p className="text-slate-400 text-xs font-medium mb-10">Real-time synchronization across our engineering networks.</p>
                             
                             {/* Horizontal Social Dock */}
@@ -191,8 +201,8 @@ export default function ContactPage() {
                     <div className="flex flex-col lg:flex-row gap-12 items-center">
                         <div className="lg:w-2/5 space-y-8">
                             <div>
-                                <h2 className="text-4xl font-black text-white uppercase italic">The Center.</h2>
-                                <p className="text-slate-500 text-sm mt-4 font-medium leading-relaxed italic">Sector 43, Aravalli Hills, Delhi-Surajkund Road, Faridabad, Haryana 121004</p>
+                                <h2 className="text-4xl font-black text-white uppercase">The Center.</h2>
+                                <p className="text-slate-500 text-sm mt-4 font-medium leading-relaxed">Sector 43, Aravalli Hills, Delhi-Surajkund Road, Faridabad, Haryana 121004</p>
                             </div>
                             
                             <Link 

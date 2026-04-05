@@ -38,6 +38,7 @@ export default function SiteNav({
 
     const navLinks = [
         { href: "/", label: "Home", icon: Home, external: false },
+        { href: "/coordinators", label: "Coordinators", icon: Sparkles, external: false },
         { href: "/contact", label: "Contact", icon: Phone, external: false },
         { href: "https://innoskill.mriic.tech/", label: "Official Page", icon: ExternalLink, external: true },
     ];
@@ -66,6 +67,7 @@ export default function SiteNav({
                                     width={scrolled ? 48 : 56} 
                                     height={scrolled ? 48 : 56} 
                                     className="w-auto transition-all duration-300 group-hover:scale-105" 
+                                    style={{ height: 'auto' }}
                                 />
                             </div>
                             <div className={`hidden sm:block transition-all duration-300 ${scrolled ? "text-slate-800" : "text-white"}`}>
@@ -178,7 +180,7 @@ export default function SiteNav({
                     <div className="flex items-center justify-between px-6 py-5">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white/20 rounded-xl backdrop-blur">
-                                <Image src={mrlogo} alt="MRIIRS Logo" width={40} height={40} className="w-auto" />
+                                <Image src={mrlogo} alt="MRIIRS Logo" width={40} height={40} className="w-auto" style={{ height: 'auto' }} />
                             </div>
                             <div className="text-white">
                                 <div className="text-xs font-medium opacity-80">MRIIRS presents</div>
